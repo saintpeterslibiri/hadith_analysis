@@ -11,6 +11,7 @@
     "chartjs-chart-sankey": "^0.12.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "d3": "^7.9.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.407.0",
     "react": "^18.3.1",

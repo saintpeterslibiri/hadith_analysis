@@ -7,8 +7,10 @@ import HadithByRaviNisbesiChart from '../components/charts/HadithByRaviNisbesiCh
 import HadithByPlacesMap from '../components/charts/HadithByPlacesMap';
 import HadithByTime from '../components/charts/HadithByTime';
 import GraphChartContainer from '../components/common/GraphChartContainer';
+import NetworkChartContainer from '../components/common/NetworkChartContainer'
 import PieChartContainer from '../components/common/PieChartContainer';
 import MapChartContainer from '../components/common/MapChartContainer';
+import HadithNetworkGraph from '../components/charts/HadithsNetworkGraph';
 const Dashboard = () => {
   const [selectedChart, setSelectedChart] = useState(null);
 
@@ -54,6 +56,14 @@ const Dashboard = () => {
             <HadithByTime />
           </GraphChartContainer>
         );
+        case 'network':
+          return (
+            <NetworkChartContainer  
+              id="places-chart"
+              title="Places marked by Hadiths First Chain's Ravi's Death Places">
+              <HadithNetworkGraph/>
+            </NetworkChartContainer >
+          );
       default:
         return <div>Please select a chart to display.</div>;
     }
@@ -68,6 +78,8 @@ const Dashboard = () => {
         <button className='hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white button-margin' onClick={() => setSelectedChart('reliability')}>Hadiths by Reliability</button>
         <button className='hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white button-margin' onClick={() => setSelectedChart('places')}>Hadiths by Places</button>
         <button className='hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white button-margin' onClick={() => setSelectedChart('time')}>Hadiths by Time</button>
+        <button className='hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white button-margin' onClick={() => setSelectedChart('network')}>Hadiths Network</button>
+
       </div>
       <div className="chart-row">
         {renderChart()}

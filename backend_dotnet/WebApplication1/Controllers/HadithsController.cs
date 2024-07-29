@@ -187,4 +187,56 @@ public async Task<IActionResult> GetHadiths(
 
             return Ok(result);
         }
+        [HttpGet("isnad-network")]
+        public async Task<IActionResult> GetIsnadNetwork()
+        {
+            var hadiths = await _context.Hadiths
+                .Where(h => h.chain != null && h.chain_length != null)
+                .Select(h => new
+                {
+                    h.id,
+                    h.chain,
+                    h.chain_length
+                })
+                .Take(1000) // Başlangıç için sınırlı sayıda hadis alalım
+                .ToListAsync();
+
+            var nodes = new List<object>();
+            var links = new List<object>();
+            var nodeIds = new HashSet<string>();
+
+            foreach (var hadith in hadiths)
+            {
+                // Hadisi düğüm olarak ekle
+                nodes.Add(new { id = hadith.id.ToString(), group = 1, label = hadith.id.ToString() });
+                nodeIds.Add(hadith.id.ToString());
+
+                if (!string.IsNullOrEmpty(hadith.chain))
+                {
+                    var narratorIds = hadith.chain.Split(';', StringSplitOptions.RemoveEmptyEntries)
+                                                .Take(hadith.chain_length ?? 0)
+                                                .Select(n => n.Trim())
+                                                .ToList();
+
+                    // Ravileri düğüm olarak ekle ve hadisle bağlantılarını oluştur
+                    for (int i = 0; i < narratorIds.Count; i++)
+                    {
+                        var narratorId = $"narrator_{narratorIds[i]}";
+                        if (!nodeIds.Contains(narratorId))
+                        {
+                            nodes.Add(new { id = narratorId, group = 2, label = narratorIds[i] });
+                            nodeIds.Add(narratorId);
+                        }
+
+                        links.Add(new 
+                        { 
+                            source = i == 0 ? hadith.id.ToString() : $"narrator_{narratorIds[i-1]}", 
+                            target = narratorId 
+                        });
+                    }
+                }
+            }
+
+            return Ok(new { nodes, links });
+        }
         }

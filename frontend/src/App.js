@@ -5,7 +5,6 @@ import RaviList from './pages/RaviList';
 import HadithsList from './pages/HadithsList';
 import Analysis from './pages/Analysis';
 import Navbar from './components/common/Navbar';
-import RaviMap from './pages/RaviMap';
 import 'leaflet/dist/leaflet.css';
 function App() {
   return (
@@ -16,7 +15,6 @@ function App() {
         <Route path="/ravis" element={<RaviList />} />
         <Route path="/hadiths" element={<HadithsList />} />
         <Route path="/analysis" element={<Analysis />} />
-        <Route path="/ravimap" element={<RaviMap/>} />
       </Routes>
     </Router>
   );
