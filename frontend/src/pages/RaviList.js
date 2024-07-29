@@ -196,7 +196,7 @@ const RaviList = () => {
                 </div>
                 <ul className="space-y-5">
                     {ravis.map((ravi) => (
-                        <li key={ravi.ravi_id} className="p-4 border rounded-lg shadow-lg bg-white/80 backdrop-blur-lg shadow-orange-300 transform transition-transform duration-300  hover:shadow-orange-100">
+                        <li key={ravi.ravi_id} className="p-4 border rounded-lg shadow-lg bg-white/80 backdrop-blur-lg shadow-blue-300 transform transition-transform duration-300  hover:shadow-blue-100">
                             <p className="text-center text-gray-700"><strong>Ravi ID:</strong> {ravi.ravi_id}</p>
                             <p className="text-center text-gray-700"><strong>Narrator Name:</strong> {ravi.narrator_name || '-'}</p>
                             <p className="text-center text-gray-700"><strong>Tribe:</strong> {ravi.tribe || '-'}</p>
@@ -218,14 +218,14 @@ const RaviList = () => {
                 <div className="flex justify-center mt-5 space-x-3">
                     <button
                         onClick={() => setCurrentPage((prev) => prev > 1 ? prev - 1 : prev)}
-                        className="px-4 py-2 text-sm bg-primary-orange rounded-full text-white"
+                        className="px-4 py-2 text-sm bg-dark-blue rounded-full text-white"
                     >
                         Previous
                     </button>
                     {renderPagination()}
                     <button
                         onClick={() => setCurrentPage((prev) => prev + 1)}
-                        className="px-4 py-2 text-sm bg-primary-orange rounded-full text-white"
+                        className="px-4 py-2 text-sm bg-dark-blue rounded-full text-white"
                     >
                         Next
                     </button>

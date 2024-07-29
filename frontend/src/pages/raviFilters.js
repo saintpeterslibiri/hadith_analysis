@@ -193,7 +193,7 @@ const RaviFilters = ({ jobList = [], nisbeList = [], hocalarList = [], talebeler
 
             <button
                 onClick={handleFilter}
-                className='w-full hover:underline px-4 py-2 text-sm bg-primary-orange rounded-full text-white'
+                className='w-full hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white'
             >
                 Filter
             </button>

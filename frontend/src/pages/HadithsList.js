@@ -169,7 +169,7 @@ const fetchTotalHadiths = async () => {
                     </p>
                     <p className="text-md text-gray-700">
                         <span className="font-semibold">Current Filters:</span>
-                        {selectedBook.length > 0 && <span className="ml-2 px-2 py-1 bg-orange-100 rounded-full text-sm">{`Books: ${selectedBook.join(', ')}`}</span>}
+                        {selectedBook.length > 0 && <span className="ml-2 px-2 py-1 bg-blue-100 rounded-full text-sm">{`Books: ${selectedBook.join(', ')}`}</span>}
                         {selectedMusannif.length > 0 && <span className="ml-2 px-2 py-1 bg-blue-100 rounded-full text-sm">{`Musannifs: ${selectedMusannif.join(', ')}`}</span>}
                         {searchTerm && <span className="ml-2 px-2 py-1 bg-green-100 rounded-full text-sm">{`Search: "${searchTerm}"`}</span>}
                         {selectedChainLength > 0 && <span className="ml-2 px-2 py-1 bg-purple-100 rounded-full text-sm">{`Chain Length: ${selectedChainLength}`}</span>}
@@ -202,7 +202,7 @@ const fetchTotalHadiths = async () => {
                     {hadiths.map((hadith) => (
                         <li
                             key={hadith.id}
-                            className="p-4 border rounded-lg shadow-lg bg-white/80 backdrop-blur-lg shadow-orange-300 transform transition-transform duration-300 hover:shadow-orange-100"
+                            className="p-4 border rounded-lg shadow-lg bg-white/80 backdrop-blur-lg shadow-blue-300 transform transition-transform duration-300 hover:shadow-blue-100"
                         >
                             <div className="flex flex-col space-y-2">
                                 <strong className="text-gray-700">Hadith ID:</strong> {hadith.id}
@@ -236,7 +236,7 @@ const fetchTotalHadiths = async () => {
                                         <strong className="text-gray-700">Chain:</strong> {hadith.chain}
                                         <button
                                             onClick={() => handleChainClick(hadith.chain)}
-                                            className="mt-2 px-4 py-2 bg-orange-200 text-white rounded hover:bg-orange-300"
+                                            className="mt-2 px-4 py-2 bg-blue-200 text-white rounded hover:bg-blue-300"
                                         >
                                             View Senet
                                         </button>
@@ -249,14 +249,14 @@ const fetchTotalHadiths = async () => {
                 <div className="flex justify-center mt-5 space-x-3">
                     <button
                         onClick={() => setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev))}
-                        className="px-4 py-2 text-sm bg-primary-orange rounded-full text-white"
+                        className="px-4 py-2 text-sm bg-dark-blue rounded-full text-white"
                     >
                         Previous
                     </button>
                     {renderPagination()}
                     <button
                         onClick={() => setCurrentPage((prev) => prev + 1)}
-                        className="px-4 py-2 text-sm bg-primary-orange rounded-full text-white"
+                        className="px-4 py-2 text-sm bg-dark-blue rounded-full text-white"
                     >
                         Next
                     </button>
