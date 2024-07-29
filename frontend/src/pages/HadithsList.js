@@ -5,7 +5,7 @@ import Filters from './HadithFilters';
 import ArabicKeyboard from '../components/common/arabicLayout'
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
-
+import keyboard from '../components/common/keyboard.png'
 const HadithsList = () => {
     const [hadiths, setHadiths] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -21,12 +21,44 @@ const HadithsList = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [showArabicKeyboard, setShowArabicKeyboard] = useState(false);
     const [fileFormat, setFileFormat] = useState('');
+    const [allHadiths, setAllHadiths] = useState('');
+    const [isFormatLoading, setIsFormatLoading] = useState(false);
     useEffect(() => {
         fetchData();
         fetchMusannifList();
         fetchBookList();
         fetchTotalHadiths();
     }, [currentPage, searchTerm, selectedMusannif, selectedBook, selectedChainLength]);
+    
+    useEffect(() => {
+        fetchAllData();
+    }, [allHadiths]);
+
+    const fetchAllData = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5031/api/hadiths/all-hadiths`, {
+                params: {
+                    page: currentPage,
+                    search: searchTerm,
+                    musannif: selectedMusannif,
+                    book: selectedBook,
+                    chainLength: selectedChainLength > 0 ? selectedChainLength : undefined,
+                },
+                paramsSerializer: params => {
+                    return Object.keys(params)
+                        .filter(key => params[key] !== undefined)
+                        .map(key => Array.isArray(params[key])
+                            ? params[key].map(val => `${key}=${val}`).join('&')
+                            : `${key}=${params[key]}`)
+                        .join('&');
+                },
+            });
+            setAllHadiths(response.data);
+            console.log(totalPages)
+        } catch (error) {   
+            console.error('Error fetching hadiths:', error);
+        }
+    };
 
 const fetchData = async () => {
     try {
@@ -136,37 +168,37 @@ const fetchTotalHadiths = async () => {
         setCurrentPage(1);
     };
     
-    const handleDownloadButton = (format) => {
-        const data = hadiths;
-    
-        const downloadExcel = (data) => {
-            const worksheet = XLSX.utils.json_to_sheet(data);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Hadiths");
-            XLSX.writeFile(workbook, "hadiths.xlsx");
-        };
-        
-        const downloadCSV = (data) => {
-            const csvContent = Papa.unparse(data);
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            if (link.download !== undefined) {
-                const url = URL.createObjectURL(blob);
-                link.setAttribute("href", url);
-                link.setAttribute("download", "hadiths.csv");
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-        };
-    
-        if (format === 'excel') {
-            downloadExcel(data);
-        } else if (format === 'csv') {
-            downloadCSV(data);
+    const handleDownloadButton = async (format) => {
+        setIsFormatLoading(true);
+        try {
+          const queryParams = new URLSearchParams({
+            format: format,
+            search: searchTerm,
+            ...(selectedMusannif.length > 0 && {musannif: selectedMusannif}),
+            ...(selectedBook.length > 0 && {book: selectedBook}),
+            ...(selectedChainLength && {chainLength: selectedChainLength})
+          });
+      
+          const response = await axios.get(`http://localhost:5031/api/hadiths/download?${queryParams}`, {
+            responseType: 'blob'
+          });
+      
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', 'hadiths.zip');
+          document.body.appendChild(link);
+          link.click();
+          link.parentNode.removeChild(link);
+        } catch (error) {
+          console.error('Download failed:', error);
+          alert('İndirme başarısız oldu. Lütfen daha sonra tekrar deneyin.');
+        } finally {
+          setIsFormatLoading(false);
         }
-    };
+      };
+    
+
     const renderPagination = () => {
         if (totalPages === 0) return null;
         const pages = [];
@@ -209,23 +241,35 @@ const fetchTotalHadiths = async () => {
                         </p>
                     </div>
                     <div className="flex items-center">
+                    <div className="relative inline-block mr-2">
                         <select
-                            id="file-format"
-                            className="select-element mr-2"
-                            onChange={(e) => setFileFormat(e.target.value)}
-                            value={fileFormat}
+                        id="file-format"
+                        className="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 pr-8 rounded-lg shadow leading-tight focus:outline-none focus:shadow-outline"
+                        onChange={(e) => setFileFormat(e.target.value)}
+                        value={fileFormat}
                         >
-                            <option value="" disabled>Seç...</option>
-                            <option value="excel">Excel</option>
-                            <option value="csv">CSV</option>
+                        <option value="" disabled>Seç...</option>
+                        <option value="excel">Excel</option>
+                        <option value="csv">CSV</option>
                         </select>
-                        <button
-                            className='px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600'
-                            onClick={() => handleDownloadButton(fileFormat)}
-                            disabled={!fileFormat}
-                        >
-                            İndir
-                        </button>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                        </svg>
+                        </div>
+                    </div>
+                    <button
+                        className={`px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:shadow-outline relative ${isFormatLoading ? 'loading' : ''}`}
+                        onClick={() => handleDownloadButton(fileFormat)}
+                        disabled={!fileFormat || isFormatLoading}
+                    >
+                        İndir
+                        {isFormatLoading && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="loading-indicator"></div>
+                        </div>
+                        )}
+                    </button>
                     </div>
                 </div>
             </div>
@@ -237,13 +281,14 @@ const fetchTotalHadiths = async () => {
                             placeholder="Search hadiths..."
                             value={searchTerm}
                             onChange={handleSearch}
-                            className="w-6/12 p-2 text-lg rounded-l-full border border-gray-300"
+                            className="w-6/12 p-2 text-lg rounded-full border border-gray-300"
                         />
                         <button
-                            onClick={toggleArabicKeyboard}
-                            className="px-4 py-2 bg-blue-500 text-white rounded-r-full hover:bg-blue-600">
-                            {showArabicKeyboard ? 'Hide' : 'Show'} Arabic Keyboard
-                        </button>             
+                        onClick={toggleArabicKeyboard}
+                        className="px-4 py-2  text-white flex items-center"
+                        >
+                        <img src={keyboard} alt="Keyboard Icon" className="ml-2" width="24" height="24" />
+                        </button>         
                     </div>
                     {showArabicKeyboard && (
                         <div className="absolute z-10 mt-2 left-1/2 transform -translate-x-1/2">

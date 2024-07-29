@@ -2,6 +2,14 @@ using Microsoft.AspNetCore.Mvc;
         using Microsoft.EntityFrameworkCore;
         using WebApplication1.Data;
         using WebApplication1.Models;
+        
+using System;
+using System.IO;
+using System.IO.Compression;
+using System.Threading.Tasks;
+using OfficeOpenXml;
+using CsvHelper;
+using System.Globalization;
 
         namespace WebApplication1.Controllers;
 
@@ -239,4 +247,134 @@ public async Task<IActionResult> GetHadiths(
 
             return Ok(new { nodes, links });
         }
+        [HttpGet("all-hadiths")]
+        public async Task<IActionResult> GetAllHadiths(
+            [FromQuery] string search = "", 
+            [FromQuery] List<string> musannif = null, 
+            [FromQuery] List<string> book = null, 
+            [FromQuery] int? chainLength = null)
+        {
+            var query = _context.Hadiths.AsQueryable();
+
+            var totalCount = await query.CountAsync(); 
+            Response.Headers.Append("x", totalCount.ToString());
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(h =>
+                    EF.Functions.ILike(h.arabic, $"%{search}%") ||
+                    EF.Functions.ILike(h.turkish, $"%{search}%") ||
+                    EF.Functions.ILike(h.musannif, $"%{search}%") ||
+                    EF.Functions.ILike(h.book, $"%{search}%") ||
+                    EF.Functions.ILike(h.topic, $"%{search}%")
+                );
+            }
+
+            if (musannif != null && musannif.Count > 0)
+            {
+                query = query.Where(h => musannif.Contains(h.musannif));
+            }
+
+            if (book != null && book.Count > 0)
+            {
+                query = query.Where(h => book.Contains(h.book));
+            }
+
+            if (chainLength.HasValue && chainLength.Value > 0)
+            {
+                query = query.Where(h => h.chain_length == chainLength.Value);
+            }
+
+            var hadiths = await query
+                .ToListAsync(); 
+
+        
+            return Ok(hadiths);
+        }
+        [HttpGet("download")]
+public async Task<IActionResult> DownloadHadiths(
+    string format,
+    [FromQuery] string search = "",
+    [FromQuery] List<string> musannif = null,
+    [FromQuery] List<string> book = null,
+    [FromQuery] int? chainLength = null)
+{
+    var query = _context.Hadiths.AsQueryable();
+    // Filtreleri uygula
+    if (!string.IsNullOrEmpty(search))
+    {
+        query = query.Where(h =>
+            EF.Functions.ILike(h.arabic, $"%{search}%") ||
+            EF.Functions.ILike(h.turkish, $"%{search}%") ||
+            EF.Functions.ILike(h.musannif, $"%{search}%") ||
+            EF.Functions.ILike(h.book, $"%{search}%") ||
+            EF.Functions.ILike(h.topic, $"%{search}%")
+        );
+    }
+    if (musannif != null && musannif.Count > 0)
+    {
+        query = query.Where(h => musannif.Contains(h.musannif));
+    }
+    if (book != null && book.Count > 0)
+    {
+        query = query.Where(h => book.Contains(h.book));
+    }
+    if (chainLength.HasValue && chainLength.Value > 0)
+    {
+        query = query.Where(h => h.chain_length == chainLength.Value);
+    }
+    // Filtrelenmiş verileri çek
+    var hadiths = await query.ToListAsync();
+
+    // Geçici dosya işlemleri
+    var tempFile = Path.GetTempFileName();
+    var tempDir = Path.GetDirectoryName(tempFile);
+    var fileName = format.ToLower() == "excel" ? "hadiths.xlsx" : "hadiths.csv";
+    var filePath = Path.Combine(tempDir, fileName);
+
+    // Verileri istenen formatta dosyaya yaz
+    if (format.ToLower() == "excel")
+    {
+        using (var package = new ExcelPackage(new FileInfo(filePath)))
+        {
+            var worksheet = package.Workbook.Worksheets.Add("Hadiths");
+            worksheet.Cells.LoadFromCollection(hadiths, true);
+            await package.SaveAsync();
+        }
+    }
+    else if (format.ToLower() == "csv")
+    {
+        using (var writer = new StreamWriter(filePath))
+        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+        {
+            csv.WriteRecords(hadiths);
+        }
+    }
+    else
+    {
+        return BadRequest("Unsupported format");
+    }
+
+    // ZIP işlemleri
+    var zipFile = Path.Combine(tempDir, "hadiths.zip");
+    using (var archive = ZipFile.Open(zipFile, ZipArchiveMode.Create))
+    {
+        archive.CreateEntryFromFile(filePath, fileName);
+    }
+
+    // ZIP dosyasını oku ve stream olarak döndür
+    var memory = new MemoryStream();
+    using (var stream = new FileStream(zipFile, FileMode.Open))
+    {
+        await stream.CopyToAsync(memory);
+    }
+    memory.Position = 0;
+
+    // Geçici dosyaları temizle
+    System.IO.File.Delete(tempFile);
+    System.IO.File.Delete(filePath);
+    System.IO.File.Delete(zipFile);
+
+    return File(memory, "application/zip", "hadiths.zip");
+}
         }
