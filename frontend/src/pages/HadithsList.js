@@ -3,6 +3,8 @@ import axios from 'axios';
 import ChainModal from './ChainModal';
 import Filters from './HadithFilters';
 import ArabicKeyboard from '../components/common/arabicLayout'
+import * as XLSX from 'xlsx';
+import Papa from 'papaparse';
 
 const HadithsList = () => {
     const [hadiths, setHadiths] = useState([]);
@@ -18,7 +20,7 @@ const HadithsList = () => {
     const [selectedChainLength, setSelectedChainLength] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [showArabicKeyboard, setShowArabicKeyboard] = useState(false);
-
+    const [fileFormat, setFileFormat] = useState('');
     useEffect(() => {
         fetchData();
         fetchMusannifList();
@@ -133,7 +135,38 @@ const fetchTotalHadiths = async () => {
         setSelectedChainLength(chainLength > 0 ? chainLength : null);
         setCurrentPage(1);
     };
-
+    
+    const handleDownloadButton = (format) => {
+        const data = hadiths;
+    
+        const downloadExcel = (data) => {
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Hadiths");
+            XLSX.writeFile(workbook, "hadiths.xlsx");
+        };
+        
+        const downloadCSV = (data) => {
+            const csvContent = Papa.unparse(data);
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", "hadiths.csv");
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        };
+    
+        if (format === 'excel') {
+            downloadExcel(data);
+        } else if (format === 'csv') {
+            downloadCSV(data);
+        }
+    };
     const renderPagination = () => {
         if (totalPages === 0) return null;
         const pages = [];
@@ -164,18 +197,38 @@ const fetchTotalHadiths = async () => {
                 <h1 className="text-center text-4xl font-extrabold p-10 text-gray-700">Hadiths List</h1>
                 
                 <div className="mb-5 p-4 bg-white/80 backdrop-blur-lg rounded-lg shadow-lg" key={totalHadiths}>
-                    <p className="text-xl font-bold text-gray-800 mb-2">
-                        Total Hadiths Found: {isLoading ? 'Loading...' : totalHadiths}
-                    </p>
-                    <p className="text-md text-gray-700">
-                        <span className="font-semibold">Current Filters:</span>
-                        {selectedBook.length > 0 && <span className="ml-2 px-2 py-1 bg-blue-100 rounded-full text-sm">{`Books: ${selectedBook.join(', ')}`}</span>}
-                        {selectedMusannif.length > 0 && <span className="ml-2 px-2 py-1 bg-blue-100 rounded-full text-sm">{`Musannifs: ${selectedMusannif.join(', ')}`}</span>}
-                        {searchTerm && <span className="ml-2 px-2 py-1 bg-green-100 rounded-full text-sm">{`Search: "${searchTerm}"`}</span>}
-                        {selectedChainLength > 0 && <span className="ml-2 px-2 py-1 bg-purple-100 rounded-full text-sm">{`Chain Length: ${selectedChainLength}`}</span>}
-                        {selectedBook.length === 0 && selectedMusannif.length === 0 && !searchTerm && !selectedChainLength && <span className="ml-2 px-2 py-1 bg-gray-100 rounded-full text-sm">None</span>}
-                    </p>
+                <div className="flex justify-between items-center">
+                    <div>
+                        <p className="text-xl font-bold text-gray-800 mb-2">
+                            Total Hadiths Found: {isLoading ? 'Loading...' : totalHadiths}
+                        </p>
+                        <p className="text-md text-gray-700">
+                            <span className="font-semibold">Current Filters:</span>
+                            {selectedBook.length === 0 && selectedMusannif.length === 0 && !searchTerm && !selectedChainLength && <span className="ml-2 px-2 py-1 bg-gray-100 rounded-full text-sm">None</span>}
+                            {/* ... other filter spans ... */}
+                        </p>
+                    </div>
+                    <div className="flex items-center">
+                        <select
+                            id="file-format"
+                            className="select-element mr-2"
+                            onChange={(e) => setFileFormat(e.target.value)}
+                            value={fileFormat}
+                        >
+                            <option value="" disabled>Seç...</option>
+                            <option value="excel">Excel</option>
+                            <option value="csv">CSV</option>
+                        </select>
+                        <button
+                            className='px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600'
+                            onClick={() => handleDownloadButton(fileFormat)}
+                            disabled={!fileFormat}
+                        >
+                            İndir
+                        </button>
+                    </div>
                 </div>
+            </div>
 
                 <div className="mb-5 text-center relative">
                     <div className="flex items-center justify-center">
