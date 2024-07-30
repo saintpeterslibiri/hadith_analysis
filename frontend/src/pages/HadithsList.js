@@ -167,7 +167,17 @@ const fetchTotalHadiths = async () => {
         setSelectedChainLength(chainLength > 0 ? chainLength : null);
         setCurrentPage(1);
     };
-    
+
+    const handleClearFilters = () => {
+        setSelectedBook([]);
+        setSelectedMusannif([]);
+        setSelectedChainLength(null);
+        setSearchTerm('');
+        setCurrentPage(1);
+        fetchData();
+        fetchTotalHadiths();
+    };
+
     const handleDownloadButton = async (format) => {
         setIsFormatLoading(true);
         try {
@@ -223,6 +233,7 @@ const fetchTotalHadiths = async () => {
                     bookList={bookList}
                     musannifList={musannifList}
                     onFilterApply={handleFilterApply}
+                    onClearFilters={handleClearFilters}
                 />
             </div>
             <div className="w-3/5 mt-5">
@@ -291,7 +302,7 @@ const fetchTotalHadiths = async () => {
                         </button>         
                     </div>
                     {showArabicKeyboard && (
-                        <div className="absolute z-10 mt-2 left-1/2 transform -translate-x-1/2">
+                        <div className="absolute z-10 mt-2 right-0 transform translate-x-1/7 translate-y-3/5">
                             <ArabicKeyboard onKeyPress={handleKeyPress} />
                         </div>
                     )}

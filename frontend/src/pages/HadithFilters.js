@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const Filters = ({ bookList, musannifList, onFilterApply }) => {
+const Filters = ({ bookList, musannifList, onFilterApply, onClearFilters  }) => {
     const [selectedBooks, setSelectedBooks] = useState([]);
     const [selectedMusannifs, setSelectedMusannifs] = useState([]);
     const [bookSearch, setBookSearch] = useState('');
@@ -35,6 +35,13 @@ const Filters = ({ bookList, musannifList, onFilterApply }) => {
 
     const handleChainLengthChange = (event) => {
         setChainLength(parseInt(event.target.value));
+    };
+
+    const handleClearFilters = () => {
+        setSelectedBooks([]);
+        setSelectedMusannifs([]);
+        setChainLength(0);
+        onClearFilters(); // Ana bileşene bildir
     };
 
     useEffect(() => {
@@ -141,6 +148,12 @@ const Filters = ({ bookList, musannifList, onFilterApply }) => {
             >
                 Filter
             </button>
+            <button
+                    onClick={handleClearFilters}
+                    className='w-full hover:underline px-4 py-2 text-sm bg-red-500 rounded-full text-white my-2'
+                >
+                    Clear Filters
+                </button>
         </div>
     );
 };

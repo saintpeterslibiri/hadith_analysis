@@ -17,7 +17,14 @@ public class RavisController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetRavis([FromQuery] int page = 1, [FromQuery] string search = "")
+    public async Task<IActionResult> GetRavis(
+        [FromQuery] int page = 1, 
+    [FromQuery] string search = "",
+    [FromQuery] List<string> job = null, 
+    [FromQuery] List<string> nisbe = null, 
+    [FromQuery] List<string> hocalari = null,
+    [FromQuery] List<string> talebeleri = null)
+
     {
         int perPage = 10;
         var query = _context.Ravis.AsQueryable();
@@ -40,6 +47,22 @@ public class RavisController : ControllerBase
         var totalCount = await query.CountAsync();
         var totalPages = (int)Math.Ceiling((double)totalCount / perPage);
 
+        if (job != null && job.Count > 0)
+        {
+            query = query.Where(r => job.Contains(r.job));
+        }
+        if (nisbe != null && nisbe.Count > 0)
+        {
+            query = query.Where(r => nisbe.Contains(r.nisbe));
+        }
+        if (hocalari != null && hocalari.Count > 0)
+        {
+            query = query.Where(r => hocalari.Contains(r.hocalari));
+        }
+        if (talebeleri != null && talebeleri.Count > 0)
+        {
+            query = query.Where(r => talebeleri.Contains(r.talebeleri));
+        }
         var ravis = await query
             .OrderBy(r => r.ravi_id)
             .Skip((page - 1) * perPage)
@@ -318,7 +341,12 @@ public class RavisController : ControllerBase
         return Ok(result);
     }
     [HttpGet("count")]
-    public async Task<IActionResult> GetRavisCount([FromQuery] string search = "", [FromQuery] List<string> tribe = null, [FromQuery] List<string> nisbe = null)
+    public async Task<IActionResult> GetRavisCount(
+    [FromQuery] string search = "",     
+    [FromQuery] List<string> job = null, 
+    [FromQuery] List<string> nisbe = null, 
+    [FromQuery] List<string> hocalari = null,
+    [FromQuery] List<string> talebeleri = null)
     {
         var query = _context.Ravis.AsQueryable();
 
@@ -333,14 +361,21 @@ public class RavisController : ControllerBase
             );
         }
 
-        if (tribe != null && tribe.Count > 0)
+        if (job != null && job.Count > 0)
         {
-            query = query.Where(r => tribe.Contains(r.tribe));
+            query = query.Where(r => job.Contains(r.job));
         }
-
         if (nisbe != null && nisbe.Count > 0)
         {
             query = query.Where(r => nisbe.Contains(r.nisbe));
+        }
+        if (hocalari != null && hocalari.Count > 0)
+        {
+            query = query.Where(r => hocalari.Contains(r.hocalari));
+        }
+        if (talebeleri != null && talebeleri.Count > 0)
+        {
+            query = query.Where(r => talebeleri.Contains(r.talebeleri));
         }
 
         var totalCount = await query.CountAsync();

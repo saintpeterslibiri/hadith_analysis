@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { fetchRaviToRavi } from '../api/raviApi';
 
-const RaviFilters = ({ jobList = [], nisbeList = [], hocalarList = [], talebelerList = [], onFilterApply }) => {
+const RaviFilters = ({ jobList = [], nisbeList = [], hocalarList = [], talebelerList = [], onFilterApply, onClearFilters }) => {
     const [selectedJobs, setSelectedJobs] = useState([]);   
     const [selectedNisbes, setSelectedNisbes] = useState([]);
     const [selectedHocalar, setSelectedHocalar] = useState([]);
@@ -54,6 +55,13 @@ const RaviFilters = ({ jobList = [], nisbeList = [], hocalarList = [], talebeler
 
     const handleFilter = () => {
         onFilterApply({ jobs: selectedJobs, nisbes: selectedNisbes, hocalar: selectedHocalar, talebeler: selectedTalebeler });
+    };
+    const handleClearFilters = () => {
+        setSelectedJobs([]);
+        setSelectedNisbes([]);
+        setSelectedHocalar([]);
+        setSelectedTalebeler([]);
+        onClearFilters(); // Ana bileşene bildir
     };
 
     return (
@@ -197,6 +205,12 @@ const RaviFilters = ({ jobList = [], nisbeList = [], hocalarList = [], talebeler
             >
                 Filter
             </button>
+            <button
+                    onClick={handleClearFilters}
+                    className='w-full hover:underline px-4 py-2 text-sm bg-red-500 rounded-full text-white my-2'
+                >
+                    Clear Filters
+                </button>
         </div>
     );
 };

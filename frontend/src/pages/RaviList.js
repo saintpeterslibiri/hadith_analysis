@@ -33,10 +33,10 @@ const RaviList = () => {
                 params: {
                     page: currentPage,
                     search: searchTerm,
-                    jobs: selectedJobs,
-                    nisbes: selectedNisbes,
-                    hocalar: selectedHocalar,
-                    talebeler: selectedTalebeler,
+                    job: selectedJobs,
+                    nisbe: selectedNisbes,
+                    hocalari: selectedHocalar,
+                    talebeleri: selectedTalebeler,
                 },
                 paramsSerializer: params => {
                     return Object.keys(params)
@@ -59,10 +59,10 @@ const RaviList = () => {
             const response = await axios.get('http://localhost:5031/api/ravis/count', {
                 params: {
                     search: searchTerm,
-                    jobs: selectedJobs,
-                    nisbes: selectedNisbes,
-                    hocalar: selectedHocalar,
-                    talebeler: selectedTalebeler,
+                    job: selectedJobs,
+                    nisbe: selectedNisbes,
+                    hocalari: selectedHocalar,
+                    talebeleri: selectedTalebeler,
                 },
                 paramsSerializer: params => {
                     return Object.keys(params)
@@ -134,6 +134,18 @@ const RaviList = () => {
         setCurrentPage(1);
     };
 
+    const handleClearFilters = () => {
+        setSelectedJobs([]);
+        setSelectedNisbes([]);
+        setSelectedNisbes([]);
+        setSelectedHocalar([])
+        setSelectedTalebeler([])
+        setSearchTerm('');
+        setCurrentPage(1);
+        fetchData();
+        fetchTotalRavis();
+    };
+
     const renderPagination = () => {
         if (totalPages === 0) return null;
 
@@ -166,6 +178,8 @@ const RaviList = () => {
                     hocalarList={hocalarList}
                     talebelerList={talebelerList}
                     onFilterApply={handleFilterApply}
+                    onClearFilters={handleClearFilters}
+
                 />
             </div>
             <div className="w-3/4 mt-5">
