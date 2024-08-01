@@ -14,9 +14,9 @@ This project involves scraping and analyzing hadiths and their narrators (ravis)
 
   
 
--  **Hadith Count:** 284,363
+-  **Hadith Count:** 284,362
 
--  **Ravis Count:** 13,595
+-  **Ravis Count:** 13,610
 
   
 
