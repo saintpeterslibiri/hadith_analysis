@@ -42,6 +42,7 @@ public class RavisController : ControllerBase
             query = query.Where(r =>
                 EF.Functions.ILike(r.narrator_name, $"%{search}%") ||
                 (r.tribe != null && r.tribe != "-1" && r.tribe != "0" && EF.Functions.ILike(r.tribe, $"%{search}%")) ||
+                (r.job != null && r.job != "-1" && r.job != "0" && EF.Functions.ILike(r.job, $"%{search}%")) ||
                 (r.nisbe != null && r.nisbe != "-1" && r.nisbe != "0" && EF.Functions.ILike(r.nisbe, $"%{search}%")) ||
                 (r.degree != null && r.degree != "-1" && r.degree != "0" && EF.Functions.ILike(r.degree, $"%{search}%")) ||
                 (r.reliability != null && r.reliability != "-1" && r.reliability != "0" && EF.Functions.ILike(r.reliability, $"%{search}%")) ||

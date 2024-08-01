@@ -241,113 +241,123 @@ const RaviList = () => {
             );
         }
         return (
-            <div className="mt-5 flex justify-center">
+            <div className="mt-5 justify-center">
                 {pages}
             </div>
         );
     };
 
     return (
-        <div className="flex justify-center">
-            <div className="w-1/4 mt-5 mr-5">
-                <RaviFilters
-                    tribeList={tribeList}               
-                    jobList={jobList}
-                    nisbeList={nisbeList}
-                    hocalarList={hocalarList}
-                    talebelerList={talebelerList}
-                    onFilterApply={handleFilterApply}
-                    onClearFilters={handleClearFilters}
-
-                />
-            </div>
-            <div className="w-3/4 mt-5">
+        <div className="container mx-auto px-4">
             <h1 className="text-center text-4xl font-extrabold p-10 text-gray-700">Ravi List</h1>
-                
-                <div className="mb-5 p-4 bg-white/80 backdrop-blur-lg rounded-lg shadow-lg" key={totalRavis}>
-                <div className="flex justify-between items-center">
-                    <div>
+            
+            <div className="mb-5 p-4 bg-white/80 backdrop-blur-lg rounded-lg shadow-lg" key={totalRavis}>
+                <div className="flex flex-col md:flex-row justify-between items-center">
+                    <div className="mb-4 md:mb-0">
                         <p className="text-xl font-bold text-gray-800 mb-2">
                             Total Ravis Found: {isLoading ? 'Loading...' : totalRavis}
                         </p>
                         <p className="text-md text-gray-700">
-                        <span className="font-semibold">Current Filters:</span>
-                        {selectedJobs.length > 0 && <span className="ml-2 px-2 py-1 bg-red-100 rounded-full text-sm">{`Jobs: ${selectedJobs.join(', ')}`}</span>}
-                        {selectedNisbes.length > 0 && <span className="ml-2 px-2 py-1 bg-blue-100 rounded-full text-sm">{`Nisbes: ${selectedNisbes.join(', ')}`}</span>}
-                        {selectedHocalar.length > 0 && <span className="ml-2 px-2 py-1 bg-green-100 rounded-full text-sm">{`Hocalar: ${selectedHocalar.join(', ')}`}</span>}
-                        {selectedTalebeler.length > 0 && <span className="ml-2 px-2 py-1 bg-yellow-100 rounded-full text-sm">{`Talebeler: ${selectedTalebeler.join(', ')}`}</span>}
-                        {searchTerm && <span className="ml-2 px-2 py-1 bg-purple-100 rounded-full text-sm">{`Search: "${searchTerm}"`}</span>}
-                        {selectedJobs.length === 0 && selectedNisbes.length === 0 && selectedHocalar.length === 0 && selectedTalebeler.length === 0 && !searchTerm && <span className="ml-2 px-2 py-1 bg-gray-100 rounded-full text-sm">None</span>}
-                    </p>
+                            <span className="font-semibold">Current Filters:</span>
+                            {selectedJobs.length > 0 && <span className="ml-2 px-2 py-1 bg-red-100 rounded-full text-sm">{`Jobs: ${selectedJobs.join(', ')}`}</span>}
+                            {selectedNisbes.length > 0 && <span className="ml-2 px-2 py-1 bg-blue-100 rounded-full text-sm">{`Nisbes: ${selectedNisbes.join(', ')}`}</span>}
+                            {selectedHocalar.length > 0 && <span className="ml-2 px-2 py-1 bg-green-100 rounded-full text-sm">{`Hocalar: ${selectedHocalar.join(', ')}`}</span>}
+                            {selectedTalebeler.length > 0 && <span className="ml-2 px-2 py-1 bg-yellow-100 rounded-full text-sm">{`Talebeler: ${selectedTalebeler.join(', ')}`}</span>}
+                            {searchTerm && <span className="ml-2 px-2 py-1 bg-purple-100 rounded-full text-sm">{`Search: "${searchTerm}"`}</span>}
+                            {selectedJobs.length === 0 && selectedNisbes.length === 0 && selectedHocalar.length === 0 && selectedTalebeler.length === 0 && !searchTerm && <span className="ml-2 px-2 py-1 bg-gray-100 rounded-full text-sm">None</span>}
+                        </p>
                     </div>
                     <div className="flex items-center">
                         <div className="relative inline-block mr-2">
                             <select
-                            id="file-format"
-                            className="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 pr-8 rounded-lg shadow leading-tight focus:outline-none focus:shadow-outline"
-                            onChange={(e) => setFileFormat(e.target.value)}
-                            value={fileFormat}
+                                id="file-format"
+                                className="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 pr-8 rounded-lg shadow leading-tight focus:outline-none focus:shadow-outline"
+                                onChange={(e) => setFileFormat(e.target.value)}
+                                value={fileFormat}
                             >
-                            <option value="" disabled>Seç...</option>
-                            <option value="excel">Excel</option>
-                            <option value="csv">CSV</option>
+                                <option value="" disabled>Seç...</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
                             </select>
                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                            </svg>
+                                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                                </svg>
+                            </div>
                         </div>
-                    </div>
-                    <button
-                        className={`px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:shadow-outline relative ${isFormatLoading ? 'loading' : ''}`}
-                        onClick={() => handleDownloadButton(fileFormat)}
-                        disabled={!fileFormat || isFormatLoading}
-                    >
-                        İndir
-                        {isFormatLoading && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="loading-indicator"></div>
-                        </div>
-                        )}
-                    </button>
+                        <button
+                            className={`px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:shadow-outline relative ${isFormatLoading ? 'loading' : ''}`}
+                            onClick={() => handleDownloadButton(fileFormat)}
+                            disabled={!fileFormat || isFormatLoading}
+                        >
+                            İndir
+                            {isFormatLoading && (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="loading-indicator"></div>
+                                </div>
+                            )}
+                        </button>
                     </div>
                 </div>
             </div>
-                <ul className="space-y-5">
-                    {ravis.map((ravi) => (
-                        <li key={ravi.ravi_id} className="p-4 border rounded-lg shadow-lg bg-white/80 backdrop-blur-lg shadow-blue-300 transform transition-transform duration-300  hover:shadow-blue-100">
-                            <p className="text-center text-gray-700"><strong>Ravi ID:</strong> {ravi.ravi_id}</p>
-                            <p className="text-center text-gray-700"><strong>Narrator Name:</strong> {ravi.narrator_name || '-'}</p>
-                            <p className="text-center text-gray-700"><strong>Tribe:</strong> {ravi.tribe || '-'}</p>
-                            <p className="text-center text-gray-700"><strong>Nisbesi:</strong> {ravi.nisbesi || '-'}</p>
-                            <p className="text-center text-gray-700"><strong>Degree:</strong> {ravi.degree || '-'}</p>
-                            <p className="text-center text-gray-700"><strong>Reliability:</strong> {ravi.reliability || '-'}</p>
-                            <p className="text-center text-gray-700"><strong>Birth Year (Hijri):</strong> {ravi.birth_year_h || '-'}</p>
-                            <p className="text-center text-gray-700"><strong>Birth Year (Miladi):</strong> {ravi.birth_year_m || '-'}</p>
-                            <p className="text-center text-gray-700"><strong>Death Year (Hijri):</strong> {ravi.death_year_h || '-'}</p>
-                            <p className="text-center text-gray-700"><strong>Death Year (Miladi):</strong> {ravi.death_year_m || '-'}</p>
-                            <p className="text-center text-gray-700"><strong>Places Lived:</strong> {ravi.placed_lived || '-'}</p>
-                            <p className="text-center text-gray-700"><strong>Job:</strong> {ravi.job || '-'}</p>
-                            <p className="text-center text-gray-700"><strong>Hocalari:</strong> {ravi.hocalari || '-'}</p>
-                            <p className="text-center text-gray-700"><strong>Talebeleri:</strong> {ravi.talebeleri || '-'}</p>
-                        </li>
-                    ))}
-                </ul>
 
-                <div className="flex justify-center mt-5 space-x-3">
-                    <button
-                        onClick={() => setCurrentPage((prev) => prev > 1 ? prev - 1 : prev)}
-                        className="px-4 py-2 text-sm bg-dark-blue rounded-full text-white"
-                    >
-                        Previous
-                    </button>
-                    {renderPagination()}
-                    <button
-                        onClick={() => setCurrentPage((prev) => prev + 1)}
-                        className="px-4 py-2 text-sm bg-dark-blue rounded-full text-white"
-                    >
-                        Next
-                    </button>
+            <div className="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
+                <div className="w-full md:w-1/4">
+                    <RaviFilters
+                        tribeList={tribeList}               
+                        jobList={jobList}
+                        nisbeList={nisbeList}
+                        hocalarList={hocalarList}
+                        talebelerList={talebelerList}
+                        onFilterApply={handleFilterApply}
+                        onClearFilters={handleClearFilters}
+                    />
+                </div>
+                <div className="w-full md:w-3/4">
+                    <div className="mb-5 text-center">
+                        <input
+                            type="text"
+                            placeholder="Search ravis..."
+                            value={searchTerm}
+                            onChange={handleSearch}
+                            className="w-full md:w-6/12 p-2 text-lg rounded-full border border-gray-300"
+                        />
+                    </div>
+                    <ul className="space-y-5">
+                        {ravis.map((ravi) => (
+                            <li key={ravi.ravi_id} className="p-4 border rounded-lg shadow-lg bg-white/80 backdrop-blur-lg shadow-blue-300 transform transition-transform duration-300 hover:shadow-blue-100">
+                                <p className="text-center text-gray-700"><strong>Ravi ID:</strong> {ravi.ravi_id}</p>
+                                <p className="text-center text-gray-700"><strong>Narrator Name:</strong> {ravi.narrator_name || '-'}</p>
+                                <p className="text-center text-gray-700"><strong>Tribe:</strong> {ravi.tribe || '-'}</p>
+                                <p className="text-center text-gray-700"><strong>Nisbesi:</strong> {ravi.nisbesi || '-'}</p>
+                                <p className="text-center text-gray-700"><strong>Degree:</strong> {ravi.degree || '-'}</p>
+                                <p className="text-center text-gray-700"><strong>Reliability:</strong> {ravi.reliability || '-'}</p>
+                                <p className="text-center text-gray-700"><strong>Birth Year (Hijri):</strong> {ravi.birth_year_h || '-'}</p>
+                                <p className="text-center text-gray-700"><strong>Birth Year (Miladi):</strong> {ravi.birth_year_m || '-'}</p>
+                                <p className="text-center text-gray-700"><strong>Death Year (Hijri):</strong> {ravi.death_year_h || '-'}</p>
+                                <p className="text-center text-gray-700"><strong>Death Year (Miladi):</strong> {ravi.death_year_m || '-'}</p>
+                                <p className="text-center text-gray-700"><strong>Places Lived:</strong> {ravi.placed_lived || '-'}</p>
+                                <p className="text-center text-gray-700"><strong>Job:</strong> {ravi.job || '-'}</p>
+                                <p className="text-center text-gray-700"><strong>Hocalari:</strong> {ravi.hocalari || '-'}</p>
+                                <p className="text-center text-gray-700"><strong>Talebeleri:</strong> {ravi.talebeleri || '-'}</p>
+                            </li>
+                        ))}
+                    </ul>
+                    <div className="flex justify-center mt-5 space-x-3">
+                        <button
+                            onClick={() => setCurrentPage((prev) => prev > 1 ? prev - 1 : prev)}
+                            className="px-4 py-2 text-sm bg-dark-blue rounded-full text-white"
+                        >
+                            Previous
+                        </button>
+                        {renderPagination()}
+                        <button
+                            onClick={() => setCurrentPage((prev) => prev + 1)}
+                            className="px-4 py-2 text-sm bg-dark-blue rounded-full text-white"
+                        >
+                            Next
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

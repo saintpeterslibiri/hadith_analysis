@@ -90,7 +90,7 @@ const SimilarHadits = () => {
       .graphData(data)
       .backgroundColor('#101020')
       .linkColor(() => 'rgba(255,255,255,0.2)')
-      .linkOpacity(0.5)
+      .linkOpacity(1)
       .linkWidth(1)
       .nodeThreeObject(node => {
         return null; // Simplify node rendering to avoid performance issues

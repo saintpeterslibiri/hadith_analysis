@@ -19,7 +19,7 @@ public class SimilarHadithsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<similar_hadiths>>> GetSimilarHadiths([FromQuery] int limit = 1000)
+    public async Task<ActionResult<IEnumerable<similar_hadiths>>> GetSimilarHadiths([FromQuery] int limit = 50000)
     {
         var filteredHadiths = await _context.similar_hadiths
                                             .Where(h => !h.hadith1_chain.Contains("nan") && !h.hadith2_chain.Contains("nan"))
