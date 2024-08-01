@@ -3,6 +3,8 @@
 ![dashboard](public/mock1.png)
 ![dashboard](public/mock2.png)
 ![dashboard](public/mock3.png)  
+![dashboard](public/mock4.png)  
+![dashboard](public/mock5.png)  
 
 This project involves scraping and analyzing hadiths and their narrators (ravis) from [Hadis Veritabanı](https://www.hadisveritabani.info/).
 
