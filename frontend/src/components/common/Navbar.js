@@ -10,7 +10,6 @@ const Navbar = () => {
           <Link to="/hadiths" className="hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white">Hadiths</Link>
           <Link to="/ravis" className="hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white">Ravis</Link>
           <Link to="/analysis" className="hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white">Charts</Link>
-          <Link to="/ravimap" className="hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white">Similar Hadiths</Link>
          </div>
       </div>
     </nav>

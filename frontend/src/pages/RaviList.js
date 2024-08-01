@@ -8,24 +8,30 @@ const RaviList = () => {
     const [totalPages, setTotalPages] = useState(0);
     const [totalRavis, setTotalRavis] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [tribeList, setTribeList] = useState([]);
     const [jobList, setJobList] = useState([]);
     const [nisbeList, setNisbeList] = useState([]);
     const [hocalarList, setHocalarList] = useState([]);
     const [talebelerList, setTalebelerList] = useState([]);
+    const [selectedTribes, setSelectedTribes] = useState([]);
     const [selectedJobs, setSelectedJobs] = useState([]);
     const [selectedNisbes, setSelectedNisbes] = useState([]);
     const [selectedHocalar, setSelectedHocalar] = useState([]);
     const [selectedTalebeler, setSelectedTalebeler] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [fileFormat, setFileFormat] = useState('');
+    const [allRavis, setAllRavis] = useState('');
+    const [isFormatLoading, setIsFormatLoading] = useState(false);
 
     useEffect(() => {
         fetchData();
+        fetchTribeList();
         fetchJobList();
         fetchNisbeList();
         fetchHocalarList();
         fetchTalebelerList();
         fetchTotalRavis();
-    }, [currentPage, searchTerm, selectedJobs, selectedNisbes, selectedHocalar, selectedTalebeler]);
+    }, [currentPage, searchTerm, selectedTribes ,selectedJobs, selectedNisbes, selectedHocalar, selectedTalebeler]);
 
     const fetchData = async () => {
         try {
@@ -33,6 +39,7 @@ const RaviList = () => {
                 params: {
                     page: currentPage,
                     search: searchTerm,
+                    tribe: selectedTribes,
                     job: selectedJobs,
                     nisbe: selectedNisbes,
                     hocalari: selectedHocalar,
@@ -52,13 +59,44 @@ const RaviList = () => {
             console.error('Error fetching ravis:', error);
         }
     };
+    useEffect(() => {
+        fetchAllData();
+    }, [allRavis]);
 
+    const fetchAllData = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5031/api/hadiths/all-ravis`, {
+                params: {
+                    page: currentPage,
+                    search: searchTerm,
+                    tribe: selectedTribes,
+                    job: selectedJobs,
+                    nisbe: selectedNisbes,
+                    hocalari: selectedHocalar,
+                    talebeleri: selectedTalebeler,
+                },
+                paramsSerializer: params => {
+                    return Object.keys(params)
+                        .filter(key => params[key] !== undefined)
+                        .map(key => Array.isArray(params[key])
+                            ? params[key].map(val => `${key}=${val}`).join('&')
+                            : `${key}=${params[key]}`)
+                        .join('&');
+                },
+            });
+            setAllRavis(response.data);
+            console.log(totalPages)
+        } catch (error) {   
+            console.error('Error fetching hadiths:', error);
+        }
+    };
     const fetchTotalRavis = async () => {
         setIsLoading(true);
         try {
             const response = await axios.get('http://localhost:5031/api/ravis/count', {
                 params: {
                     search: searchTerm,
+                    tribe: selectedTribes,
                     job: selectedJobs,
                     nisbe: selectedNisbes,
                     hocalari: selectedHocalar,
@@ -80,7 +118,14 @@ const RaviList = () => {
             setIsLoading(false);
         }
     };
-
+    const fetchTribeList = async () => {
+        try {
+            const response = await axios.get('http://localhost:5031/api/Ravis/tribe-list');
+            setTribeList(response.data);
+        } catch (error) {
+            console.error('Error fetching job list:', error);
+        }
+    };
     const fetchJobList = async () => {
         try {
             const response = await axios.get('http://localhost:5031/api/Ravis/job-list');
@@ -126,7 +171,8 @@ const RaviList = () => {
         setCurrentPage(1);
     };
     
-    const handleFilterApply = ({ jobs, nisbes, hocalar, talebeler }) => {
+    const handleFilterApply = ({ tribes, jobs, nisbes, hocalar, talebeler }) => {
+        setSelectedTribes(tribes);
         setSelectedJobs(jobs);
         setSelectedNisbes(nisbes);
         setSelectedHocalar(hocalar);
@@ -135,6 +181,7 @@ const RaviList = () => {
     };
 
     const handleClearFilters = () => {
+        setSelectedTribes([]);
         setSelectedJobs([]);
         setSelectedNisbes([]);
         setSelectedNisbes([]);
@@ -145,6 +192,37 @@ const RaviList = () => {
         fetchData();
         fetchTotalRavis();
     };
+    const handleDownloadButton = async (format) => {
+        setIsFormatLoading(true);
+        try {
+          const queryParams = new URLSearchParams({
+            format: format,
+            search: searchTerm,
+            ...(selectedJobs.length > 0 && {job: selectedJobs}),
+            ...(selectedNisbes.length > 0 && {nisbe: selectedNisbes}),
+            ...(selectedTribes.length > 0 && {tribe: selectedTribes}),
+            ...(selectedHocalar.length > 0 && {hocalar: selectedHocalar}),
+            ...(selectedTalebeler.length > 0 && {talebeler: selectedTalebeler}),
+          });
+      
+          const response = await axios.get(`http://localhost:5031/api/ravis/download?${queryParams}`, {
+            responseType: 'blob'
+          });
+      
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', 'ravis.zip');
+          document.body.appendChild(link);
+          link.click();
+          link.parentNode.removeChild(link);
+        } catch (error) {
+          console.error('Download failed:', error);
+          alert('İndirme başarısız oldu. Lütfen daha sonra tekrar deneyin.');
+        } finally {
+          setIsFormatLoading(false);
+        }
+      };
 
     const renderPagination = () => {
         if (totalPages === 0) return null;
@@ -173,6 +251,7 @@ const RaviList = () => {
         <div className="flex justify-center">
             <div className="w-1/4 mt-5 mr-5">
                 <RaviFilters
+                    tribeList={tribeList}               
                     jobList={jobList}
                     nisbeList={nisbeList}
                     hocalarList={hocalarList}
@@ -183,22 +262,15 @@ const RaviList = () => {
                 />
             </div>
             <div className="w-3/4 mt-5">
-                <h1 className="text-center text-4xl font-extrabold p-10 text-gray-700">Ravi List</h1>
-                <div className="mb-5 flex justify-center">
-                    <input
-                        type="text"
-                        placeholder="Search ravis..."
-                        value={searchTerm}
-                        onChange={handleSearch}
-                        className="w-full max-w-md p-3 text-lg border rounded-full"
-                    />
-                </div>
-
+            <h1 className="text-center text-4xl font-extrabold p-10 text-gray-700">Ravi List</h1>
+                
                 <div className="mb-5 p-4 bg-white/80 backdrop-blur-lg rounded-lg shadow-lg" key={totalRavis}>
-                    <p className="text-xl font-bold text-gray-800 mb-2">
-                        Total Ravis Found: {isLoading ? 'Loading...' : totalRavis}
-                    </p>
-                    <p className="text-md text-gray-700">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <p className="text-xl font-bold text-gray-800 mb-2">
+                            Total Ravis Found: {isLoading ? 'Loading...' : totalRavis}
+                        </p>
+                        <p className="text-md text-gray-700">
                         <span className="font-semibold">Current Filters:</span>
                         {selectedJobs.length > 0 && <span className="ml-2 px-2 py-1 bg-red-100 rounded-full text-sm">{`Jobs: ${selectedJobs.join(', ')}`}</span>}
                         {selectedNisbes.length > 0 && <span className="ml-2 px-2 py-1 bg-blue-100 rounded-full text-sm">{`Nisbes: ${selectedNisbes.join(', ')}`}</span>}
@@ -207,7 +279,40 @@ const RaviList = () => {
                         {searchTerm && <span className="ml-2 px-2 py-1 bg-purple-100 rounded-full text-sm">{`Search: "${searchTerm}"`}</span>}
                         {selectedJobs.length === 0 && selectedNisbes.length === 0 && selectedHocalar.length === 0 && selectedTalebeler.length === 0 && !searchTerm && <span className="ml-2 px-2 py-1 bg-gray-100 rounded-full text-sm">None</span>}
                     </p>
+                    </div>
+                    <div className="flex items-center">
+                        <div className="relative inline-block mr-2">
+                            <select
+                            id="file-format"
+                            className="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 pr-8 rounded-lg shadow leading-tight focus:outline-none focus:shadow-outline"
+                            onChange={(e) => setFileFormat(e.target.value)}
+                            value={fileFormat}
+                            >
+                            <option value="" disabled>Seç...</option>
+                            <option value="excel">Excel</option>
+                            <option value="csv">CSV</option>
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <button
+                        className={`px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:shadow-outline relative ${isFormatLoading ? 'loading' : ''}`}
+                        onClick={() => handleDownloadButton(fileFormat)}
+                        disabled={!fileFormat || isFormatLoading}
+                    >
+                        İndir
+                        {isFormatLoading && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="loading-indicator"></div>
+                        </div>
+                        )}
+                    </button>
+                    </div>
                 </div>
+            </div>
                 <ul className="space-y-5">
                     {ravis.map((ravi) => (
                         <li key={ravi.ravi_id} className="p-4 border rounded-lg shadow-lg bg-white/80 backdrop-blur-lg shadow-blue-300 transform transition-transform duration-300  hover:shadow-blue-100">

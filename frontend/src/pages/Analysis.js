@@ -44,9 +44,11 @@ const Dashboard = () => {
           );
           case 'places':
           return (
+            
             <MapChartContainer 
+            
               id="places-chart"
-              title="Places marked by Hadiths First Chain's Ravi's Death Places">
+              >
               <HadithByPlacesMap />
             </MapChartContainer>
           );
@@ -58,9 +60,7 @@ const Dashboard = () => {
         );
         case 'network':
           return (
-            <NetworkChartContainer  
-              id="places-chart"
-              title="Places marked by Hadiths First Chain's Ravi's Death Places">
+            <NetworkChartContainer  >
               <HadithNetworkGraph/>
             </NetworkChartContainer >
           );

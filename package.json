@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "lodash": "^4.17.21",
     "simple-keyboard": "^3.7.93"
   }
 }

@@ -1,0 +1,33 @@
+{
+  "name": "workerjs",
+  "version": "0.1.1",
+  "description": "Server Web Workers for node.js that work",
+  "main": "index.js",
+  "browser": "browser.js",
+  "scripts": {
+    "test": "node_modules/.bin/mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eugeneware/workerjs"
+  },
+  "keywords": [
+    "browserify",
+    "worker",
+    "webworker",
+    "server",
+    "client",
+    "web"
+  ],
+  "author": "Eugene Ware <eugene@noblesamurai.com>",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/eugeneware/workerjs/issues"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "expect.js": "~0.2.0",
+    "gamma": "~0.1.0",
+    "mocha": "~1.16.2"
+  }
+}

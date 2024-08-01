@@ -1,147 +1,192 @@
-import React, { useEffect, useRef, useState } from 'react';
-import * as d3 from 'd3';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import ForceGraph3D from '3d-force-graph';
+import * as d3 from 'd3';
 
-const HadithsNetworkChart = () => {
-  const canvasRef = useRef(null);
-  const overlayRef = useRef(null);
-  const [data, setData] = useState(null);
+const SimilarHadits = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedNode, setSelectedNode] = useState(null);
+  const [hoveredNode, setHoveredNode] = useState(null);
+  const containerRef = useRef(null);
+  const graphRef = useRef(null);
+  const [data, setData] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
         const response = await axios.get('http://localhost:5031/api/SimilarHadiths');
-        setData(response.data);
+        const data = response.data;
+        setData(precomputePositions(data));
+        initGraph(precomputePositions(data));
       } catch (error) {
-        console.error('Error fetching similar hadiths data:', error);
+        console.error('Error fetching hadith network data:', error);
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchData();
+
+    const handleResize = () => {
+      if (graphRef.current && containerRef.current) {
+        const { width, height } = containerRef.current.getBoundingClientRect();
+        graphRef.current.width(width).height(height);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (graphRef.current) {
+        graphRef.current._destructor();
+      }
+    };
   }, []);
 
-  useEffect(() => {
-    if (data && !isLoading) {
-      const width = 928;
-      const height = 600;
-      const nodeRadius = 3;
+  const precomputePositions = (rawData) => {
+    // Assuming you have some logic to compute node positions
+    // Here is a dummy example of setting positions randomly
+    const nodes = new Map();
+    const links = [];
 
-      const canvas = canvasRef.current;
-      const context = canvas.getContext('2d');
-      
-      const links = data.map(d => ({
-        source: d.hadith1_id,
-        target: d.hadith2_id,
-        similarity: d.similarity
-      }));
-
-      const nodes = Array.from(new Set(links.flatMap(l => [l.source, l.target])))
-        .map(id => ({ id }));
-
-      const simulation = d3.forceSimulation(nodes)
-        .force("link", d3.forceLink(links).id(d => d.id))
-        .force("charge", d3.forceManyBody().strength(-30))
-        .force("center", d3.forceCenter(width / 2, height / 2))
-        .stop();
-
-      for (let i = 0; i < 300; ++i) simulation.tick();
-
-      const draw = (transform) => {
-        context.clearRect(0, 0, width, height);
-        context.save();
-        context.translate(transform.x, transform.y);
-        context.scale(transform.k, transform.k);
-
-        context.strokeStyle = '#999';
-        context.lineWidth = 0.5 / transform.k;
-        links.forEach(link => {
-          context.beginPath();
-          context.moveTo(link.source.x, link.source.y);
-          context.lineTo(link.target.x, link.target.y);
-          context.stroke();
-        });
-
-        context.fillStyle = 'black';
-        nodes.forEach(node => {
-          context.beginPath();
-          context.arc(node.x, node.y, nodeRadius / transform.k, 0, 2 * Math.PI);
-          context.fill();
-        });
-
-        context.restore();
+    rawData.forEach(item => {
+      const addNode = (id, chain) => {
+        if (!nodes.has(id)) {
+          nodes.set(id, {
+            id,
+            chain: chain.split('; '),
+            x: Math.random() * 1000 - 500, // Replace with your logic
+            y: Math.random() * 1000 - 500, // Replace with your logic
+            z: Math.random() * 1000 - 500  // Replace with your logic
+          });
+        }
       };
 
-      let transform = d3.zoomIdentity;
+      addNode(item.hadith1_id, item.hadith1_chain);
+      addNode(item.hadith2_id, item.hadith2_chain);
 
-      const zoom = d3.zoom()
-        .scaleExtent([0.1, 10])
-        .on('zoom', (event) => {
-          transform = event.transform;
-          draw(transform);
-        });
+      links.push({
+        source: item.hadith1_id,
+        target: item.hadith2_id,
+        similarity: item.similarity
+      });
+    });
 
-      d3.select(canvas)
-        .call(zoom)
-        .on('click', (event) => {
-          const [x, y] = d3.pointer(event);
-          const node = simulation.find((transform.invertX(x) - width / 2) / transform.k, (transform.invertY(y) - height / 2) / transform.k, nodeRadius * 2);
-          if (node) {
-            setSelectedNode(node);
-          } else {
-            setSelectedNode(null);
+    return {
+      nodes: Array.from(nodes.values()),
+      links: links
+    };
+  };
+
+  const initGraph = (data) => {
+    if (!containerRef.current) return;
+
+    const { width, height } = containerRef.current.getBoundingClientRect();
+
+    const graph = ForceGraph3D()(containerRef.current)
+      .width(width)
+      .height(height)
+      .graphData(data)
+      .backgroundColor('#101020')
+      .linkColor(() => 'rgba(255,255,255,0.2)')
+      .linkOpacity(0.5)
+      .linkWidth(1)
+      .nodeThreeObject(node => {
+        return null; // Simplify node rendering to avoid performance issues
+      })
+      .nodeThreeObjectExtend(false)
+      .onNodeHover(node => {
+        containerRef.current.style.cursor = node ? 'pointer' : null;
+        setHoveredNode(node);
+      })
+      .onNodeClick(node => {
+        console.log('Clicked node:', node);
+        setHoveredNode(node);
+      });
+
+    // Lazy loading & clustering
+    graph.onZoomEnd(() => {
+      loadMoreNodes(graph);
+      clusterNodes(graph);
+    });
+
+    // Dynamic adjustments
+    adjustNodeSizeAndLinkWidth(graph);
+
+    graphRef.current = graph;
+  };
+
+  const loadMoreNodes = (graph) => {
+    // Implement logic to load more nodes based on the graph's current state (e.g., zoom level, visible nodes)
+  };
+
+  const clusterNodes = (graph) => {
+    // Implement logic to cluster densely connected nodes and display them as single entities
+  };
+
+  const adjustNodeSizeAndLinkWidth = (graph) => {
+    const degrees = graph.graphData().nodes.map(node => 
+      graph.graphData().links.filter(link => link.source === node || link.target === node).length
+    );
+    const maxDegree = Math.max(...degrees);
+    const minDegree = Math.min(...degrees);
+
+    graph.nodeVal(node => {
+      const degree = graph.graphData().links.filter(link => link.source === node || link.target === node).length;
+      return 5 + (degree - minDegree) / (maxDegree - minDegree) * 15;
+    });
+
+    graph.linkWidth(link => {
+      return Math.log(link.similarity + 1) * 2;
+    });
+  };
+
+  const handleFullScreen = () => {
+    if (containerRef.current) {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        containerRef.current.requestFullscreen().then(() => {
+          const { width, height } = containerRef.current.getBoundingClientRect();
+          if (graphRef.current) {
+            graphRef.current.width(width).height(height);
           }
         });
-
-      draw(transform);
-    }
-  }, [data, isLoading]);
-
-  const handleCopyId = () => {
-    if (selectedNode) {
-      navigator.clipboard.writeText(selectedNode.id)
-        .then(() => alert('ID copied to clipboard!'))
-        .catch(err => console.error('Failed to copy: ', err));
+      }
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-      </div>
-    );
-  }
-
   return (
     <div style={{ position: 'relative' }}>
-      <canvas ref={canvasRef} width={928} height={600} />
-      <div ref={overlayRef} style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        pointerEvents: 'none'
-      }}>
-        {selectedNode && (
-          <div style={{
-            position: 'absolute',
-            top: '10px',
-            left: '10px',
-            background: 'white',
-            padding: '5px',
-            border: '1px solid black',
-            pointerEvents: 'auto'
-          }}>
-            <p>Selected Node ID: {selectedNode.id}</p>
-            <button onClick={handleCopyId}>Copy ID</button>
-          </div>
-        )}
+      {isLoading && (
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+        </div>
+      )}
+      <div ref={containerRef} style={{ width: '100%', height: '600px' }} />
+      <div 
+        style={{
+          position: 'absolute',
+          top: 10,
+          left: 10,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          color: 'white',
+          padding: '10px',
+          cursor: 'pointer',
+          zIndex: 1
+        }}
+        onClick={handleFullScreen}
+      >
+        Full Screen
       </div>
+      {hoveredNode && (
+        <div style={{ position: 'absolute', bottom: 0, left: 0, backgroundColor: 'rgba(0, 0, 0, 0.7)', color: 'white', padding: '10px' }}>
+          ID: {hoveredNode.id}
+        </div>
+      )}
     </div>
   );
 };
 
-export default HadithsNetworkChart;
+export default SimilarHadits;

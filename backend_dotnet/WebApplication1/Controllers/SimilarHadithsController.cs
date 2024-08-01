@@ -1,3 +1,5 @@
+//SimilarHadithsController.cs
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
@@ -17,8 +19,13 @@ public class SimilarHadithsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<similar_hadiths>>> GetSimilarHadiths()
+    public async Task<ActionResult<IEnumerable<similar_hadiths>>> GetSimilarHadiths([FromQuery] int limit = 1000)
     {
-        return await _context.similar_hadiths.ToListAsync();
+        var filteredHadiths = await _context.similar_hadiths
+                                            .Where(h => !h.hadith1_chain.Contains("nan") && !h.hadith2_chain.Contains("nan"))
+                                            .Take(limit)
+                                            .ToListAsync();
+        return filteredHadiths;
     }
+
 }

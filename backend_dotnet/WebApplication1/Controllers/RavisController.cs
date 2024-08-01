@@ -3,6 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.Models;
 
+using System;
+using System.IO;
+using System.IO.Compression;
+using System.Threading.Tasks;
+using OfficeOpenXml;
+using CsvHelper;
+using System.Globalization;
 namespace WebApplication1.Controllers;
 
 [ApiController]
@@ -20,6 +27,7 @@ public class RavisController : ControllerBase
     public async Task<IActionResult> GetRavis(
         [FromQuery] int page = 1, 
     [FromQuery] string search = "",
+    [FromQuery] List<string> tribe = null,
     [FromQuery] List<string> job = null, 
     [FromQuery] List<string> nisbe = null, 
     [FromQuery] List<string> hocalari = null,
@@ -46,7 +54,11 @@ public class RavisController : ControllerBase
 
         var totalCount = await query.CountAsync();
         var totalPages = (int)Math.Ceiling((double)totalCount / perPage);
-
+        
+        if (tribe != null && tribe.Count > 0)
+        {
+            query = query.Where(r => tribe.Contains(r.tribe));
+        }
         if (job != null && job.Count > 0)
         {
             query = query.Where(r => job.Contains(r.job));
@@ -342,7 +354,8 @@ public class RavisController : ControllerBase
     }
     [HttpGet("count")]
     public async Task<IActionResult> GetRavisCount(
-    [FromQuery] string search = "",     
+    [FromQuery] string search = "",       
+    [FromQuery] List<string> tribe = null,  
     [FromQuery] List<string> job = null, 
     [FromQuery] List<string> nisbe = null, 
     [FromQuery] List<string> hocalari = null,
@@ -361,6 +374,10 @@ public class RavisController : ControllerBase
             );
         }
 
+        if (tribe != null && tribe.Count > 0)
+        {
+            query = query.Where(r => tribe.Contains(r.tribe));
+        }
         if (job != null && job.Count > 0)
         {
             query = query.Where(r => job.Contains(r.job));
@@ -383,6 +400,29 @@ public class RavisController : ControllerBase
         Console.WriteLine($"Total Ravis Count: {totalCount}");
 
         return Ok(totalCount);
+    }
+    [HttpGet("tribe-list")]
+    public async Task<IActionResult> GetTribesList()
+    {
+        var tribes = await _context.Ravis
+            .Where(r => !string.IsNullOrEmpty(r.tribe) && r.tribe != "-1" && r.tribe != "0")
+            .Select(r => r.tribe)
+            .ToListAsync();
+
+        var uniqueTribes = new HashSet<string>();
+
+        foreach (var tribe in tribes)
+        {
+            var splittedTribes = tribe.Split(new string[] { "-#-" }, StringSplitOptions.None);
+            foreach (var sTribe in splittedTribes)
+            {
+                uniqueTribes.Add(sTribe.Trim());
+            }
+        }
+
+        var orderedUniqueTribes = uniqueTribes.OrderBy(j => j).ToList();
+
+        return Ok(orderedUniqueTribes);
     }
     [HttpGet("job-list")]
     public async Task<IActionResult> GetJobs()
@@ -476,5 +516,163 @@ public class RavisController : ControllerBase
         var orderedUniqueNisbes = uniqueNisbes.OrderBy(n => n).ToList();
 
         return Ok(orderedUniqueNisbes);
+    }
+    [HttpGet("all-ravis")]
+        public async Task<IActionResult> GetAllRavis(
+            [FromQuery] string search = "", 
+            [FromQuery] List<string> tribe = null, 
+            [FromQuery] List<string> job = null, 
+            [FromQuery] List<string> nisbe = null, 
+            [FromQuery] List<string> hocalari = null, 
+            [FromQuery] List<string> talebeleri = null)
+        {
+            var query = _context.Ravis.AsQueryable();
+
+            var totalCount = await query.CountAsync(); 
+            Response.Headers.Append("x", totalCount.ToString());
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(r =>
+                    EF.Functions.ILike(r.narrator_name, $"%{search}%") ||
+                    (r.tribe != null && r.tribe != "-1" && r.tribe != "0" && EF.Functions.ILike(r.tribe, $"%{search}%")) ||
+                    (r.nisbe != null && r.nisbe != "-1" && r.nisbe != "0" && EF.Functions.ILike(r.nisbe, $"%{search}%")) ||
+                    (r.degree != null && r.degree != "-1" && r.degree != "0" && EF.Functions.ILike(r.degree, $"%{search}%")) ||
+                    (r.reliability != null && r.reliability != "-1" && r.reliability != "0" && EF.Functions.ILike(r.reliability, $"%{search}%")) ||
+                    (r.hocalari != null && EF.Functions.ILike(r.hocalari, $"%{search}%")) ||
+                    (r.talebeleri != null && EF.Functions.ILike(r.talebeleri, $"%{search}%"))
+
+                    
+                );
+            }
+
+        
+            if (tribe != null && tribe.Count > 0)
+            {
+                query = query.Where(r => tribe.Contains(r.tribe));
+            }
+            if (job != null && job.Count > 0)
+            {
+                query = query.Where(r => job.Contains(r.job));
+            }
+            if (nisbe != null && nisbe.Count > 0)
+            {
+                query = query.Where(r => nisbe.Contains(r.nisbe));
+            }
+            if (hocalari != null && hocalari.Count > 0)
+            {
+                query = query.Where(r => hocalari.Contains(r.hocalari));
+            }
+            if (talebeleri != null && talebeleri.Count > 0)
+            {
+                query = query.Where(r => talebeleri.Contains(r.talebeleri));
+            }
+
+            var hadiths = await query
+                .ToListAsync(); 
+
+        
+            return Ok(hadiths);
+        }
+        [HttpGet("download")]
+        public async Task<IActionResult> DownloadRavis(
+        string format,
+        [FromQuery] string search = "", 
+        [FromQuery] List<string> tribe = null, 
+        [FromQuery] List<string> job = null, 
+        [FromQuery] List<string> nisbe = null, 
+        [FromQuery] List<string> hocalari = null, 
+        [FromQuery] List<string> talebeleri = null)
+    {
+        var query = _context.Ravis.AsQueryable();
+        // Filtreleri uygula
+        if (!string.IsNullOrEmpty(search))
+        {
+            query = query.Where(r =>
+                EF.Functions.ILike(r.narrator_name, $"%{search}%") ||
+                (r.tribe != null && r.tribe != "-1" && r.tribe != "0" && EF.Functions.ILike(r.tribe, $"%{search}%")) ||
+                (r.nisbe != null && r.nisbe != "-1" && r.nisbe != "0" && EF.Functions.ILike(r.nisbe, $"%{search}%")) ||
+                (r.degree != null && r.degree != "-1" && r.degree != "0" && EF.Functions.ILike(r.degree, $"%{search}%")) ||
+                (r.reliability != null && r.reliability != "-1" && r.reliability != "0" && EF.Functions.ILike(r.reliability, $"%{search}%")) ||
+                (r.hocalari != null && EF.Functions.ILike(r.hocalari, $"%{search}%")) ||
+                (r.talebeleri != null && EF.Functions.ILike(r.talebeleri, $"%{search}%"))
+
+                
+            );
+        }
+        
+        if (tribe != null && tribe.Count > 0)
+        {
+            query = query.Where(r => tribe.Contains(r.tribe));
+        }
+        if (job != null && job.Count > 0)
+        {
+            query = query.Where(r => job.Contains(r.job));
+        }
+        if (nisbe != null && nisbe.Count > 0)
+        {
+            query = query.Where(r => nisbe.Contains(r.nisbe));
+        }
+        if (hocalari != null && hocalari.Count > 0)
+        {
+            query = query.Where(r => hocalari.Contains(r.hocalari));
+        }
+        if (talebeleri != null && talebeleri.Count > 0)
+        {
+            query = query.Where(r => talebeleri.Contains(r.talebeleri));
+        }
+        // Filtrelenmiş verileri çek
+        var ravis = await query.ToListAsync();
+
+        // Geçici dosya işlemleri
+        var tempFile = Path.GetTempFileName();
+        var tempDir = Path.GetDirectoryName(tempFile);
+        var fileName = format.ToLower() == "excel" ? "ravis.xlsx" : "ravis.csv";
+        var filePath = Path.Combine(tempDir, fileName);
+
+        // Verileri istenen formatta dosyaya yaz
+        if (format.ToLower() == "excel")
+        {
+            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Ravis");
+                worksheet.Cells.LoadFromCollection(ravis, true);
+                await package.SaveAsync();
+            }
+        }
+        else if (format.ToLower() == "csv")
+        {
+            using (var writer = new StreamWriter(filePath))
+            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                csv.WriteRecords(ravis);
+            }
+        }
+        else
+        {
+            return BadRequest("Unsupported format");
+        }
+
+        // ZIP işlemleri
+        var zipFile = Path.Combine(tempDir, "ravis.zip");
+        using (var archive = ZipFile.Open(zipFile, ZipArchiveMode.Create))
+        {
+            archive.CreateEntryFromFile(filePath, fileName);
+        }
+
+        // ZIP dosyasını oku ve stream olarak döndür
+        var memory = new MemoryStream();
+        using (var stream = new FileStream(zipFile, FileMode.Open))
+        {
+            await stream.CopyToAsync(memory);
+        }
+        memory.Position = 0;
+
+        // Geçici dosyaları temizle
+        System.IO.File.Delete(tempFile);
+        System.IO.File.Delete(filePath);
+        System.IO.File.Delete(zipFile);
+
+        return File(memory, "application/zip", "ravis.zip");
     }
 }
