@@ -62,7 +62,7 @@ const Analysis = () => {
 
   return (
     <div className="analysis-dashboard">
-      <h1 className="analysis-title">Hadis Analizi</h1>
+      <h1 className="text-center text-4xl font-extrabold p-10 text-gray-700">Hadis Analyse</h1>
       <div className="analysis-content">
         <div className="filter-section">
           <h2 className="section-title">Filtreler</h2>

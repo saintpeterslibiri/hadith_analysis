@@ -10,7 +10,7 @@ const Home = () => {
           <span className="blue_gradient">Hadiths & Ravis Analysis</span>
         </h1>
         <p className="desc">
-          Data analysis and visualization of Hadiths
+          Analysis and visualization of Hadiths
         </p>
       </section>
 
