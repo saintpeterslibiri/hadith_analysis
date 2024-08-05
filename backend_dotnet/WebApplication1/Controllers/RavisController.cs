@@ -676,4 +676,36 @@ public class RavisController : ControllerBase
 
         return File(memory, "application/zip", "ravis.zip");
     }
+[HttpGet("narrator-name-list")]
+public async Task<IActionResult> GetNarratorName(string query = "")
+{
+    var narratorNames = await _context.Ravis
+        .Where(r => !string.IsNullOrEmpty(r.narrator_name))
+        .Select(r => r.narrator_name)
+        .ToListAsync();
+
+    var uniqueNarratorName = new HashSet<string>();
+
+    foreach (var narrator_name in narratorNames)
+    {
+        var splittedNarrators = narrator_name.Split(new string[] { "-#-" }, StringSplitOptions.None);
+        foreach (var sHocalari in splittedNarrators)
+        {
+            uniqueNarratorName.Add(sHocalari.Trim());
+        }
+    }
+
+    if (!string.IsNullOrEmpty(query))
+    {
+        uniqueNarratorName = new HashSet<string>(
+            uniqueNarratorName.Where(n => n.StartsWith(query, StringComparison.OrdinalIgnoreCase))
+        );
+    }
+
+    var orderedNarratorNames = uniqueNarratorName.OrderBy(n => n).ToList();
+
+    return Ok(orderedNarratorNames);
+}
+
+
 }

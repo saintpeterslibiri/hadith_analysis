@@ -1,20 +1,28 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import axios from 'axios';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const HadithByTribeChart = () => {
   const [chartData, setChartData] = useState({
     labels: [],
-    datasets: [],
+    datasets: [{
+      label: 'Number of Hadiths',
+      data: [],
+      backgroundColor: [],
+      borderColor: [],
+      borderWidth: 1,
+    }],
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [hiddenIndices, setHiddenIndices] = useState([]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsLoading(true)
+        setIsLoading(true);
         const response = await axios.get('http://localhost:5031/api/Ravis/hadith-by-tribe');
         const data = response.data;
 
@@ -38,11 +46,28 @@ const HadithByTribeChart = () => {
     fetchData();
   }, []);
 
+  const handleToggleVisibility = (index) => {
+    setHiddenIndices((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+    );
+  };
+
+  const filteredChartData = {
+    ...chartData,
+    datasets: chartData.datasets.map((dataset) => ({
+      ...dataset,
+      data: dataset.data.map((value, index) => (hiddenIndices.includes(index) ? 0 : value)),
+      backgroundColor: dataset.backgroundColor.map((color, index) => (hiddenIndices.includes(index) ? 'rgba(0, 0, 0, 0.1)' : color)),
+      borderColor: dataset.borderColor.map((color, index) => (hiddenIndices.includes(index) ? 'rgba(0, 0, 0, 0.1)' : color)),
+    })),
+  };
+
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top',
+        display: false,
       },
       tooltip: {
         enabled: true,
@@ -57,7 +82,32 @@ const HadithByTribeChart = () => {
       </div>
     );
   }
-  return <Pie data={chartData} options={options} />;
+
+  return (
+    <div className="hadith-by-tribe-container">
+      <div className="tribe-list">
+        <h2>Tribes</h2>
+        <ul>
+          {chartData.labels.map((tribe, index) => (
+            <li key={index}>
+              <button
+                onClick={() => handleToggleVisibility(index)}
+                style={{
+                  color: hiddenIndices.includes(index) ? 'black' : chartData.datasets[0].backgroundColor[index],
+                  textDecoration: hiddenIndices.includes(index) ? 'line-through' : 'none'
+                }}
+              >
+                {tribe}: {chartData.datasets[0].data[index]}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="chart-container">
+        <Pie data={filteredChartData} options={options} />
+      </div>
+    </div>
+  );
 };
 
 export default HadithByTribeChart;

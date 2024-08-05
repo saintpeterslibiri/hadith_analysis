@@ -9,7 +9,8 @@ const Navbar = () => {
         <div className="flex space-x-4">
           <Link to="/hadiths" className="hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white">Hadiths</Link>
           <Link to="/ravis" className="hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white">Ravis</Link>
-          <Link to="/analysis" className="hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white">Charts</Link>
+          <Link to="/charts" className="hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white">Charts</Link>
+          <Link to="/analysis" className="hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white">Analysis</Link>
          </div>
       </div>
     </nav>

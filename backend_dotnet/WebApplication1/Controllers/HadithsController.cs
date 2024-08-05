@@ -377,4 +377,32 @@ public async Task<IActionResult> DownloadHadiths(
 
     return File(memory, "application/zip", "hadiths.zip");
 }
+    [HttpGet("filter-by-narrator")]
+    public async Task<IActionResult> GetHadithsByNarrator(
+        [FromQuery] int chainIndex, 
+        [FromQuery] string narratorName)
+    {
+        if (chainIndex < 0)
+        {
+            return BadRequest("Invalid chain index.");
+        }
+
+        // Fetch all hadiths with non-null chains from the database
+        var hadiths = await _context.Hadiths
+            .Where(h => h.chain != null)
+            .ToListAsync();
+
+        // Split the chains and filter based on chainIndex and narratorName
+        var filteredHadiths = hadiths
+            .Select(h => new { h, ChainArray = h.chain.Split(';') })
+            .Where(h => h.ChainArray.Length > chainIndex 
+                        && _context.Ravis.Any(r => r.narrator_name.Contains(narratorName, StringComparison.OrdinalIgnoreCase) 
+                                                && r.narrator_name == h.ChainArray[chainIndex].Trim()))
+            .Select(h => h.h)
+            .ToList();
+
+        return Ok(filteredHadiths);
+    }
+
+
         }

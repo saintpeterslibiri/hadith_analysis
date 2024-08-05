@@ -64,17 +64,7 @@ svg {
   height: 100%;
 }
 
-.graph-chart-container {
-  margin: 20px;
-  padding: 20px;
-  width: 100%;
-  max-width: 1300px;
-  height: auto;
-  max-height: 1000px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #fff;
-}
+
 .pie-chart-container {
   margin: 20px;
   padding: 20px;
@@ -208,6 +198,241 @@ svg {
   color: white;
   width: 100%;
 }
+/* index.css dosyasına bu stilleri ekleyin */
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.chart-nav {
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 10px 0;
+}
+
+.chart-nav-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.chart-nav-button {
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 20px;
+  color: #495057;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.chart-nav-button:hover {
+  background-color: #e0e0e0;
+}
+
+.chart-nav-button.active {
+  background-color: #1e3a8a;
+  color: #ffffff;
+}
+
+.chart-container {
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.graph-chart-container {
+  margin: 20px auto;
+  padding: 20px;
+  width: 90%; /* Viewport genişliğinin %90'ı */
+  max-width: 100%; /* Maksimum genişlik sınırı */
+  min-width: 500px; /* Minimum genişlik sınırı */
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.graph-chart-container h2 {
+  text-align: center; /* Başlığı ortalar */
+}
+
+.hadith-by-reliability-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 20px auto;
+  padding: 20px;
+  max-width: 1200px;
+  min-height: 500px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.reliability-list {
+  flex: 1;
+  font-weight: bolder;
+  min-width: 200px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+.reliability-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.reliability-list li {
+  margin-bottom: 5px;
+  transition: opacity 0.3s ease;
+}
+
+.reliability-list li:hover {
+  opacity: 0.7;
+}
+
+.map-chart-container {
+  margin: 20px auto;
+  padding: 20px;
+  max-width: 1200px;
+  height: calc(100vh - 200px);
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.network-chart-container {
+  margin: 20px auto;
+  padding: 20px;
+  max-width: 1200px;
+  height: calc(100vh - 200px);
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Artık kullanılmayan stilleri kaldırın */
+.button-row,
+.button-margin {
+  display: none;
+}
+
+/* Responsive ayarlamalar */
+@media (max-width: 768px) {
+  .chart-nav-container {
+    justify-content: flex-start;
+  }
+  
+  .chart-nav-button {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-nav-button {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+}
+
+.hadith-by-tribe-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 20px auto;
+  padding: 20px;
+  max-width: 1200px;
+  min-height: 500px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tribe-list {
+  flex: 1;
+  font-weight: bolder ;
+  min-width: 200px;
+  max-height: 500px;
+  overflow-y: auto;
+  
+}
+
+.tribe-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.tribe-list li {
+  margin-bottom: 5px;
+}
+
+.chart-container {
+  flex: 2;
+  min-width: 300px;
+  height: 500px;
+}
+
+@media (max-width: 768px) {
+  .hadith-by-tribe-container {
+    flex-direction: column;
+  }
+  
+  .tribe-list, .chart-container {
+    width: 100%;
+  }
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+}
+
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.custom-select {
+  margin: 20px;
+  padding: 10px;
+  border-radius: 8px;
+  width: 100%; /* Text field ile aynı genişlikte olacak */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: #f0f8ff; /* Daha belirgin bir arka plan rengi */
+}
+
+.custom-select select {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.custom-select select:focus {
+  background-color: #add8e6; /* Daha belirgin bir odak rengi */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
 
 .number-selector {
   font-family: Arial, sans-serif;
@@ -229,12 +454,286 @@ svg {
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
+.ravi-filter {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.ravi-select {
+  width: 100px;
+  height: 40px;
+  margin-right: 10px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.ravi-input-container {
+  position: relative;
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+.ravi-input {
+  width: 100%;
+  height: 40px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.ravi-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-top: none;
+  z-index: 1000;
+}
+
+.ravi-suggestions li {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.ravi-suggestions li.active {
+  background: #007bff;
+  color: #fff;
+}
+
+.ravi-remove-btn {
+  background: none;
+  border: none;
+  color: #ff0000;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 5px;
+}
+
+.ravi-remove-btn:hover {
+  color: #cc0000;
+}
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+.analysis-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Inter', sans-serif;
+  color: #333;
+}
 
+.analysis-title {
+  font-size: 2.5rem;
+  color: #1a202c;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.analysis-content {
+  display: flex;
+  gap: 2rem;
+}
+
+.filter-section {
+  flex: 1;
+  background-color: #f7fafc;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  font-size: 1.5rem;
+  color: #2d3748;
+  margin-bottom: 1rem;
+}
+
+.ravi-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ravi-filter {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.ravi-select, .ravi-input, .hadith-id-input {
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.ravi-select {
+  width: 80px;
+}
+
+.ravi-input-container {
+  position: relative;
+  flex-grow: 1;
+}
+
+.ravi-input {
+  width: 100%;
+}
+
+.ravi-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-top: none;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.ravi-suggestions li {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.ravi-suggestions li:hover {
+  background-color: #edf2f7;
+}
+
+.ravi-remove-btn,  .apply-filters-btn {
+  padding: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ravi-remove-btn {
+  background-color: #feb2b2;
+  color: #c53030;
+}
+
+.add-ravi-btn {
+  background-color: #9ae6b4;
+  color: #2f855a;
+  margin-top: 0.5rem;
+  width: 100%;
+  height: 30px;
+}
+
+.hadith-id-filter {
+  margin-top: 1rem;
+}
+
+.hadith-id-input {
+  width: 100%;
+}
+
+.apply-filters-btn {
+  width: 100%;
+  background-color: #4299e1;
+  color: white;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  height: 40px; /* Increased height for better appearance */
+  border: none; /* Remove default border */
+  border-radius: 8px; /* Rounded corners */
+  font-size: 16px; /* Increase font size */
+  cursor: pointer; /* Change cursor on hover */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition effects */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.apply-filters-btn .icon {
+  position: absolute;
+  right: 40%; /* Adjust as needed for spacing */
+  font-size: 20px; /* Adjust size of the icon */
+  height: 25px;
+}
+
+/* Add a subtle shadow */
+.apply-filters-btn:hover {
+  background-color: #3182ce; /* Darken background color on hover */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow on hover */
+}
+
+
+.chart-section {
+  flex: 2;
+}
+
+.chart-nav {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.chart-nav-btn {
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  background-color: #edf2f7;
+  color: #4a5568;
+}
+
+.chart-nav-btn.active {
+  background-color: #4299e1;
+  color: white;
+}
+
+.chart {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  color: #718096;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  font-size: 1.2rem;
+  color: #718096;
+}
+
+@media (max-width: 768px) {
+  .analysis-content {
+    flex-direction: column;
+  }
+
+  .chart-section {
+    margin-top: 2rem;
+  }
+}
 .number-selector h3 {
   font-size: 16px;
   font-weight: normal;

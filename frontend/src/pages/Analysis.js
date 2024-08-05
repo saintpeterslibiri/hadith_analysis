@@ -1,91 +1,131 @@
-import React, { useState } from 'react';
-import HadithByTribeChart from '../components/charts/HadithByTribeChart';
-import HadithByBookChart from '../components/charts/HadithByBookChart';
-import HadithByMusannifChart from '../components/charts/HadithByMusannifChart';
-import HadithByRaviReliabilityChart from '../components/charts/HadithByRaviReliabilityChart';
-import HadithByRaviNisbesiChart from '../components/charts/HadithByRaviNisbesiChart';
-import HadithByPlacesMap from '../components/charts/HadithByPlacesMap';
-import HadithByTime from '../components/charts/HadithByTime';
-import GraphChartContainer from '../components/common/GraphChartContainer';
-import NetworkChartContainer from '../components/common/NetworkChartContainer'
-import PieChartContainer from '../components/common/PieChartContainer';
-import MapChartContainer from '../components/common/MapChartContainer';
-import HadithNetworkGraph from '../components/charts/HadithsNetworkGraph';
-const Dashboard = () => {
-  const [selectedChart, setSelectedChart] = useState(null);
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { FaPlus, FaTimes, FaFilter } from 'react-icons/fa';
+import RaviFilter from '../components/common/RaviAnalysisFilters';
+
+const Analysis = () => {
+  const [hadiths, setHadiths] = useState([]);
+  const [raviFilters, setRaviFilters] = useState([{ rank: '', name: '' }]);
+  const [hadithId, setHadithId] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [activeChart, setActiveChart] = useState('general');
+
+  useEffect(() => {
+    fetchHadiths();
+  }, []);
+
+  const fetchHadiths = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('/api/hadiths');
+      setHadiths(response.data);
+    } catch (error) {
+      console.error('Error fetching hadiths:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRaviFilterChange = (index, field, value) => {
+    const newFilters = [...raviFilters];
+    newFilters[index][field] = value;
+    setRaviFilters(newFilters);
+  };
+
+  const addRaviFilter = () => {
+    if (raviFilters.length < 20) {
+      setRaviFilters([...raviFilters, { rank: '', name: '' }]);
+    }
+  };
+
+  const removeRaviFilter = (index) => {
+    setRaviFilters(raviFilters.filter((_, i) => i !== index));
+  };
+
+  const applyFilters = () => {
+    // Filtreleme mantığı burada uygulanacak
+    console.log("Filters applied:", raviFilters, hadithId);
+  };
 
   const renderChart = () => {
-    switch (selectedChart) {
-      case 'tribe':
-        return (
-          <PieChartContainer title="Hadiths Grouped By With Its Chain's First Ravi's Tribe ">
-            <HadithByTribeChart />
-          </PieChartContainer>
-        );
-      case 'book':
-        return (
-          <GraphChartContainer title="Hadiths Grouped By Book Which It is written">
-            <HadithByBookChart />
-          </GraphChartContainer>
-        );
-      case 'musannif':
-        return (
-          <GraphChartContainer title="Hadiths Grouped By Musannif">
-            <HadithByMusannifChart />
-          </GraphChartContainer>
-        );
-        case 'reliability':
-          return (
-            <PieChartContainer 
-              id="reliability-chart"
-              title="Hadiths Grouped By Its Chain's First Ravi's Reliability">
-              <HadithByRaviReliabilityChart />
-            </PieChartContainer>
-          );
-          case 'places':
-          return (
-            
-            <MapChartContainer 
-            
-              id="places-chart"
-              >
-              <HadithByPlacesMap />
-            </MapChartContainer>
-          );
-      case 'time':
-        return (
-          <GraphChartContainer title="Hadiths Grouped by Its Chain's First Ravi's Death Year">
-            <HadithByTime />
-          </GraphChartContainer>
-        );
-        case 'network':
-          return (
-            <NetworkChartContainer  >
-              <HadithNetworkGraph/>
-            </NetworkChartContainer >
-          );
+    switch (activeChart) {
+      case 'general':
+        return <div className="chart general-chart">Genel Analiz Grafiği</div>;
+      case 'reliability':
+        return <div className="chart reliability-chart">Güvenilirlik Analizi Grafiği</div>;
+      case 'narrators':
+        return <div className="chart narrators-chart">Raviler Analizi Grafiği</div>;
       default:
-        return <div>Please select a chart to display.</div>;
+        return null;
     }
   };
 
   return (
-    <div className="dashboard">
-      <div className="button-row">
-        <button className=' hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white button-margin' onClick={() => setSelectedChart('tribe')}>Hadiths by Tribe</button>
-        <button className='hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white button-margin' onClick={() => setSelectedChart('book')}>Hadiths by Book</button>
-        <button className='hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white button-margin' onClick={() => setSelectedChart('musannif')}>Hadiths by Musannif</button>
-        <button className='hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white button-margin' onClick={() => setSelectedChart('reliability')}>Hadiths by Reliability</button>
-        <button className='hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white button-margin' onClick={() => setSelectedChart('places')}>Hadiths by Places</button>
-        <button className='hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white button-margin' onClick={() => setSelectedChart('time')}>Hadiths by Time</button>
-        <button className='hover:underline px-4 py-2 text-sm bg-dark-blue rounded-full text-white button-margin' onClick={() => setSelectedChart('network')}>Hadiths Network</button>
-
-      </div>
-      <div className="chart-row">
-        {renderChart()}
+    <div className="analysis-dashboard">
+      <h1 className="analysis-title">Hadis Analizi</h1>
+      <div className="analysis-content">
+        <div className="filter-section">
+          <h2 className="section-title">Filtreler</h2>
+          <div className="ravi-filters">
+            {raviFilters.map((filter, index) => (
+              <RaviFilter
+                key={index}
+                filter={filter}
+                index={index}
+                onChange={handleRaviFilterChange}
+                onRemove={removeRaviFilter}
+              />
+            ))}
+            {raviFilters.length < 20 && (
+              <button onClick={addRaviFilter} className="add-ravi-btn">
+                <FaPlus />
+              </button>
+            )}
+          </div>
+          <div className="hadith-id-filter">
+            <input
+              type="text"
+              placeholder="Hadis ID"
+              value={hadithId}
+              onChange={(e) => setHadithId(e.target.value)}
+              className="hadith-id-input"
+            />
+          </div>
+          <button onClick={applyFilters} className="apply-filters-btn">
+            <FaFilter className="icon" />
+            Filtreleri Uygula
+          </button>
+        </div>
+        <div className="chart-section">
+          <div className="chart-nav">
+            <button
+              className={`chart-nav-btn ${activeChart === 'general' ? 'active' : ''}`}
+              onClick={() => setActiveChart('general')}
+            >
+              Genel Analiz
+            </button>
+            <button
+              className={`chart-nav-btn ${activeChart === 'reliability' ? 'active' : ''}`}
+              onClick={() => setActiveChart('reliability')}
+            >
+              Güvenilirlik Analizi
+            </button>
+            <button
+              className={`chart-nav-btn ${activeChart === 'narrators' ? 'active' : ''}`}
+              onClick={() => setActiveChart('narrators')}
+            >
+              Raviler Analizi
+            </button>
+          </div>
+          {loading ? (
+            <div className="loading-spinner">Yükleniyor...</div>
+          ) : (
+            renderChart()
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default Analysis;
