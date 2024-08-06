@@ -1,0 +1,248 @@
+/* General style */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+}
+
+/* Analysis container */
+.analysis {
+    display: flex;
+    padding: 20px;
+    flex-wrap: wrap; /* For responsive layout */
+}
+
+/* Filters section */
+.filters {
+    width: 100%;
+    max-width: 400px; /* Limit the max width */
+    margin-right: 20px;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.filters h2 {
+    margin-top: 0;
+}
+
+.filter-group {
+    margin-bottom: 20px;
+}
+
+.ravi-filter {
+    display: flex;
+    gap: 0.3rem;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap; /* For responsive layout */
+}
+
+.ravi-name-filters,
+.ravi-stat-filters {
+    margin-bottom: 20px;
+}
+
+.ravi-input {
+    width: 100%;
+    height: 40px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.ravi-select {
+    width: 100%;
+    height: 40px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.ravi-input-container {
+    position: relative;
+    flex-grow: 2;
+    margin-right: 10px;
+    width: 100%;
+}
+
+.add-filter-btn {
+    background: #28a745;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    height: 30px;
+    width: 100%;
+}
+
+.add-filter-btn svg {
+    margin-right: 5px;
+}
+
+.add-filter-btn:hover {
+    background: #218838;
+}
+
+.ravi-remove-btn {
+    background-color: #c53030;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    height: 30px;
+    width: 100%;
+}
+
+.ravi-remove-btn svg {
+    height: 20px;
+    width: 100%;
+}
+
+.hadith-id-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.apply-filters-btn {
+    width: 100%;
+    background-color: #4299e1;
+    color: white;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    height: 40px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    text-align: center;
+    
+}
+
+.apply-filters-btn svg {
+    margin-right: 10px;
+    position: absolute;
+    height: 20px;
+    right: 140px;
+}
+
+.apply-filters-btn:hover {
+    background: #0069d9;
+}
+
+/* Charts section */
+.charts {
+    flex: 1;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    width: 100%; /* For responsive layout */
+    max-width: 100%; /* Limit the max width */
+}
+
+.charts h2 {
+    margin-top: 0;
+}
+
+.chart-buttons {
+    display: flex;
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* For responsive layout */
+}
+
+.chart-buttons button {
+    background: #e9ecef;
+    border: none;
+    padding: 10px 20px;
+    margin-right: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.chart-buttons button.active {
+    background: #007bff;
+    color: #fff;
+}
+
+.chart-buttons button:hover {
+    background: #007bff;
+    color: #fff;
+}
+
+.chart {
+    padding: 20px;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.ravi-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-top: none;
+    z-index: 1000;
+}
+
+.ravi-suggestions li {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.ravi-suggestions li.active {
+    background: #007bff;
+    color: #fff;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .analysis {
+        flex-direction: column;
+    }
+
+    .filters {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+
+    .charts {
+        width: 100%;
+    }
+
+    .ravi-filter {
+        flex-direction: column;
+    }
+
+    .ravi-input-container, .ravi-select {
+        width: 100%;
+        margin-right: 0;
+    }
+}

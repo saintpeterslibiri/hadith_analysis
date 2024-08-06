@@ -1,11 +1,15 @@
+// Analysis.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaPlus, FaTimes, FaFilter } from 'react-icons/fa';
-import RaviFilter from '../components/common/RaviAnalysisFilters';
+import { FaPlus, FaFilter } from 'react-icons/fa';
+import RaviNameFilter from '../components/common/Filters/RaviNameFilter';
+import RaviStatFilter from '../components/common/Filters/RaviStatFilter';
+import '../analysis.css'
 
 const Analysis = () => {
   const [hadiths, setHadiths] = useState([]);
-  const [raviFilters, setRaviFilters] = useState([{ rank: '', name: '' }]);
+  const [raviNameFilters, setRaviNameFilters] = useState([{ rank: '', name: '' }]);
+  const [raviStatFilters, setRaviStatFilters] = useState([{ reliability: '', job: '', tribe: '' }]);
   const [hadithId, setHadithId] = useState('');
   const [loading, setLoading] = useState(true);
   const [activeChart, setActiveChart] = useState('general');
@@ -26,103 +30,120 @@ const Analysis = () => {
     }
   };
 
-  const handleRaviFilterChange = (index, field, value) => {
-    const newFilters = [...raviFilters];
+  const handleRaviNameFilterChange = (index, field, value) => {
+    const newFilters = [...raviNameFilters];
     newFilters[index][field] = value;
-    setRaviFilters(newFilters);
+    setRaviNameFilters(newFilters);
   };
 
-  const addRaviFilter = () => {
-    if (raviFilters.length < 20) {
-      setRaviFilters([...raviFilters, { rank: '', name: '' }]);
+  const handleRaviStatFilterChange = (index, field, value) => {
+    const newFilters = [...raviStatFilters];
+    newFilters[index][field] = value;
+    setRaviStatFilters(newFilters);
+  };
+
+  const addRaviNameFilter = () => {
+    if (raviNameFilters.length < 20) {
+      setRaviNameFilters([...raviNameFilters, { rank: '', name: '' }]);
     }
   };
 
-  const removeRaviFilter = (index) => {
-    setRaviFilters(raviFilters.filter((_, i) => i !== index));
+  const addRaviStatFilter = () => {
+    if (raviStatFilters.length < 20) {
+      setRaviStatFilters([...raviStatFilters, { reliability: '', job: '', tribe: '' }]);
+    }
+  };
+
+  const removeRaviNameFilter = (index) => {
+    setRaviNameFilters(raviNameFilters.filter((_, i) => i !== index));
+  };
+
+  const removeRaviStatFilter = (index) => {
+    setRaviStatFilters(raviStatFilters.filter((_, i) => i !== index));
   };
 
   const applyFilters = () => {
-    // Filtreleme mantığı burada uygulanacak
-    console.log("Filters applied:", raviFilters, hadithId);
+    console.log("Filters applied:", { raviNameFilters, raviStatFilters, hadithId });
+    // Implement the actual filter logic here
   };
 
   const renderChart = () => {
     switch (activeChart) {
       case 'general':
-        return <div className="chart general-chart">Genel Analiz Grafiği</div>;
+        return <div className="chart">Genel Analiz Grafiği</div>;
       case 'reliability':
-        return <div className="chart reliability-chart">Güvenilirlik Analizi Grafiği</div>;
-      case 'narrators':
-        return <div className="chart narrators-chart">Raviler Analizi Grafiği</div>;
+        return <div className="chart">Güvenilirlik Analizi Grafiği</div>;
+      case 'job':
+        return <div className="chart">Meslek Analizi Grafiği</div>;
+      case 'tribe':
+        return <div className="chart">Kabile Analizi Grafiği</div>;
       default:
         return null;
     }
   };
 
   return (
-    <div className="analysis-dashboard">
-      <h1 className="text-center text-4xl font-extrabold p-10 text-gray-700">Hadis Analyse</h1>
-      <div className="analysis-content">
-        <div className="filter-section">
-          <h2 className="section-title">Filtreler</h2>
-          <div className="ravi-filters">
-            {raviFilters.map((filter, index) => (
-              <RaviFilter
+    <div className="analysis">
+      <div className="filters">
+        <h2>Filtreler</h2>
+        <div className="filter-group">
+          <div className="ravi-name-filters">
+            {raviNameFilters.map((filter, index) => (
+              <RaviNameFilter
                 key={index}
                 filter={filter}
                 index={index}
-                onChange={handleRaviFilterChange}
-                onRemove={removeRaviFilter}
+                onChange={handleRaviNameFilterChange}
+                onRemove={removeRaviNameFilter}
               />
             ))}
-            {raviFilters.length < 20 && (
-              <button onClick={addRaviFilter} className="add-ravi-btn">
-                <FaPlus />
-              </button>
-            )}
+            <button onClick={addRaviNameFilter} className="add-filter-btn">
+              <FaPlus/>
+            </button>
           </div>
-          <div className="hadith-id-filter">
-            <input
-              type="text"
-              placeholder="Hadis ID"
-              value={hadithId}
-              onChange={(e) => setHadithId(e.target.value)}
-              className="hadith-id-input"
-            />
+          <div className="ravi-stat-filters">
+            {raviStatFilters.map((filter, index) => (
+              <RaviStatFilter
+                key={index}
+                filter={filter}
+                index={index}
+                onChange={handleRaviStatFilterChange}
+                onRemove={removeRaviStatFilter}
+              />
+            ))}
+            <button onClick={addRaviStatFilter} className="add-filter-btn">
+              <FaPlus />
+            </button>
           </div>
-          <button onClick={applyFilters} className="apply-filters-btn">
-            <FaFilter className="icon" />
-            Filtreleri Uygula
+        </div>
+        <input
+          type="text"
+          placeholder="Hadis ID"
+          value={hadithId}
+          onChange={(e) => setHadithId(e.target.value)}
+          className="hadith-id-input"
+        />
+        <button onClick={applyFilters} className="apply-filters-btn">
+          <FaFilter /> Filtreleri Uygula
+        </button>
+      </div>
+      <div className="charts">
+        <h2>Hadis Analizi</h2>
+        <div className="chart-buttons">
+          <button onClick={() => setActiveChart('general')} className={activeChart === 'general' ? 'active' : ''}>
+            Genel Analiz
+          </button>
+          <button onClick={() => setActiveChart('reliability')} className={activeChart === 'reliability' ? 'active' : ''}>
+            Güvenilirlik Analizi
+          </button>
+          <button onClick={() => setActiveChart('job')} className={activeChart === 'job' ? 'active' : ''}>
+            Meslek Analizi
+          </button>
+          <button onClick={() => setActiveChart('tribe')} className={activeChart === 'tribe' ? 'active' : ''}>
+            Kabile Analizi
           </button>
         </div>
-        <div className="chart-section">
-          <div className="chart-nav">
-            <button
-              className={`chart-nav-btn ${activeChart === 'general' ? 'active' : ''}`}
-              onClick={() => setActiveChart('general')}
-            >
-              Genel Analiz
-            </button>
-            <button
-              className={`chart-nav-btn ${activeChart === 'reliability' ? 'active' : ''}`}
-              onClick={() => setActiveChart('reliability')}
-            >
-              Güvenilirlik Analizi
-            </button>
-            <button
-              className={`chart-nav-btn ${activeChart === 'narrators' ? 'active' : ''}`}
-              onClick={() => setActiveChart('narrators')}
-            >
-              Raviler Analizi
-            </button>
-          </div>
-          {loading ? (
-            <div className="loading-spinner">Yükleniyor...</div>
-          ) : (
-            renderChart()
-          )}
-        </div>
+        {renderChart()}
       </div>
     </div>
   );
