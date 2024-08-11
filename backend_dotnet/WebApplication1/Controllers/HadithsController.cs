@@ -10,8 +10,9 @@ using System.Threading.Tasks;
 using OfficeOpenXml;
 using CsvHelper;
 using System.Globalization;
+using System.Net.Quic;
 
-        namespace WebApplication1.Controllers;
+namespace WebApplication1.Controllers;
 
         [ApiController]
         [Route("api/[controller]")]
@@ -23,23 +24,20 @@ using System.Globalization;
             {
                 _context = context;
             }
-
-    [HttpGet]
+[HttpGet]
 public async Task<IActionResult> GetHadiths(
-    [FromQuery] int page = 1, 
-    [FromQuery] string search = "", 
-    [FromQuery] List<string> musannif = null, 
-    [FromQuery] List<string> book = null, 
-    [FromQuery] int? chainLength = null)
+    [FromQuery] int page = 1,
+    [FromQuery] string search = "",
+    [FromQuery] List<string> musannif = null,
+    [FromQuery] List<string> book = null,
+    [FromQuery] int? chainLength = null,
+    [FromQuery] int? chainIndex = null,
+    [FromQuery] string narratorName = null)
 {
     int perPage = 10;
     var query = _context.Hadiths.AsQueryable();
 
-    var totalCount = await query.CountAsync(); 
-    var totalPages = (int)Math.Ceiling((double)totalCount / perPage);
-    Response.Headers.Append("Total-Pages-hadiths", totalPages.ToString());
-    Response.Headers.Append("x", totalCount.ToString());
-
+    // Arama terimi ile filtreleme
     if (!string.IsNullOrEmpty(search))
     {
         query = query.Where(h =>
@@ -51,11 +49,13 @@ public async Task<IActionResult> GetHadiths(
         );
     }
 
+    // Musannif listesi ile filtreleme
     if (musannif != null && musannif.Count > 0)
     {
         query = query.Where(h => musannif.Contains(h.musannif));
     }
 
+    // Kitap listesi ile filtreleme
     if (book != null && book.Count > 0)
     {
         query = query.Where(h => book.Contains(h.book));
@@ -377,32 +377,95 @@ public async Task<IActionResult> DownloadHadiths(
 
     return File(memory, "application/zip", "hadiths.zip");
 }
-    [HttpGet("filter-by-narrator")]
-    public async Task<IActionResult> GetHadithsByNarrator(
-        [FromQuery] int chainIndex, 
-        [FromQuery] string narratorName)
+[HttpGet("hadith-analyze")]
+public async Task<IActionResult> GetHadithsAnalyze(
+    [FromQuery] List<int>? chainIndex = null, // Opsiyonel liste
+    [FromQuery] List<string>? narratorName = null, // Opsiyonel liste
+    [FromQuery] List<string> musannif = null,
+    [FromQuery] List<string>? bookName = null, // Opsiyonel liste
+    [FromQuery] int page = 1, // Sayfa numarası, varsayılan 1
+    [FromQuery] int perPage = 10) // Her sayfada gösterilecek kayıt sayısı, varsayılan 10
+{
+    // Hadisleri çekiyoruz
+    var hadithsQuery = _context.Hadiths.AsQueryable();
+
+    // Kitap ismi ile filtreleme
+    if (bookName != null && bookName.Any())
     {
-        if (chainIndex < 0)
-        {
-            return BadRequest("Invalid chain index.");
-        }
-
-        // Fetch all hadiths with non-null chains from the database
-        var hadiths = await _context.Hadiths
-            .Where(h => h.chain != null)
-            .ToListAsync();
-
-        // Split the chains and filter based on chainIndex and narratorName
-        var filteredHadiths = hadiths
-            .Select(h => new { h, ChainArray = h.chain.Split(';') })
-            .Where(h => h.ChainArray.Length > chainIndex 
-                        && _context.Ravis.Any(r => r.narrator_name.Contains(narratorName, StringComparison.OrdinalIgnoreCase) 
-                                                && r.narrator_name == h.ChainArray[chainIndex].Trim()))
-            .Select(h => h.h)
-            .ToList();
-
-        return Ok(filteredHadiths);
+        hadithsQuery = hadithsQuery.Where(h => bookName.Contains(h.book));
+    }
+        // Musannif listesi ile filtreleme
+    if (musannif != null && musannif.Count > 0)
+    {
+        hadithsQuery = hadithsQuery.Where(h => musannif.Contains(h.musannif));
     }
 
+    // ChainIndex ve NarratorName için eşleşme kontrolü
+    bool applyChainFilter = chainIndex != null && narratorName != null && chainIndex.Count == narratorName.Count;
 
-        }
+    List<Hadith> hadithsList;
+
+    if (applyChainFilter)
+    {
+        // Ravilere erişiyoruz
+        var ravis = await _context.Ravis.ToListAsync();
+        var raviDictionary = ravis.ToDictionary(r => r.ravi_id, r => r.narrator_name);
+
+        // Tüm filtreleri uygulayarak hadisleri çekiyoruz
+        hadithsList = await hadithsQuery.ToListAsync();
+
+        // ChainIndex ve NarratorName filtrelerini uyguluyoruz
+        hadithsList = hadithsList.Where(h =>
+        {
+            if (string.IsNullOrEmpty(h.chain))
+                return false;
+
+            var chainArray = h.chain.Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+            for (int i = 0; i < chainIndex.Count; i++)
+            {
+                int index = chainIndex[i];
+                string name = narratorName[i];
+
+                // Zincirin belirtilen indeksinde ravi olup olmadığını kontrol ediyoruz
+                if (index - 1 < 0 || index - 1 >= chainArray.Length)
+                    return false;
+
+                if (!int.TryParse(chainArray[index - 1].Trim(), out int raviId))
+                    return false;
+
+                if (!raviDictionary.TryGetValue(raviId, out var raviName))
+                    return false;
+
+                if (!string.Equals(raviName, name, StringComparison.OrdinalIgnoreCase))
+                    return false;
+            }
+
+            return true;
+        }).ToList();
+    }
+    else
+    {
+        // Sadece kitap filtresi uygulanmışsa veya hiç filtre yoksa
+        hadithsList = await hadithsQuery.ToListAsync();
+    }
+
+    // Toplam kayıt sayısını ve sayfa sayısını hesaplıyoruz
+    var totalCount = hadithsList.Count;
+    var totalPages = (int)Math.Ceiling((double)totalCount / perPage);
+
+    // HTTP başlıklarına toplam kayıt ve sayfa sayısını ekliyoruz
+    Response.Headers.Append("Total-Pages-hadith-analyze", totalPages.ToString());
+    Response.Headers.Append("Total-Count-hadith-analyze", totalCount.ToString());
+
+    // Sayfalama işlemini uyguluyoruz
+    var pagedHadiths = hadithsList
+        .Skip((page - 1) * perPage)
+        .Take(perPage)
+        .ToList();
+
+    return Ok(pagedHadiths);
+}
+
+
+}

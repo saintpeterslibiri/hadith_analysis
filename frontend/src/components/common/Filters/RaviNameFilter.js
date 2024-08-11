@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import axios from 'axios';
 import debounce from 'lodash.debounce';
-
+import '../../../analysis.css';
 const RaviNameFilter = ({ filter, index, onChange, onRemove }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -67,10 +67,11 @@ const RaviNameFilter = ({ filter, index, onChange, onRemove }) => {
         onChange={(e) => onChange(index, 'rank', e.target.value)}
         className="ravi-select"
       >
-        <option value="">Halka</option>
-        {[...Array(20)].map((_, i) => (
-          <option key={i} value={i + 1}>{i + 1}</option>
-        ))}
+
+      <option value="-1">Halka</option>
+      {[...Array(19)].map((_, i) => (
+        <option key={i} value={i + 1}>{i + 1}</option>
+      ))}
       </select>
       <div className="ravi-input-container">
         <input

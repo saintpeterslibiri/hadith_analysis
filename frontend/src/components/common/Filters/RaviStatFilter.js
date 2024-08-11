@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { FaTimes } from 'react-icons/fa';
 
 const RaviStatFilter = ({ filter, index, onChange, onRemove }) => {
@@ -18,9 +19,11 @@ const RaviStatFilter = ({ filter, index, onChange, onRemove }) => {
 
       if (endpoint) {
         try {
-          const response = await fetch(endpoint);
-          const data = await response.json();
-          setOptions(data);
+          const response = await axios.get(endpoint);
+          setOptions(response.data.map(item => ({
+            value: item,
+            label: item
+          })));
         } catch (error) {
           console.error('Error fetching options:', error);
         }
@@ -68,11 +71,15 @@ const RaviStatFilter = ({ filter, index, onChange, onRemove }) => {
         disabled={!filterType}
       >
         <option value="">Seçenek Seç...</option>
-        {options.map((option) => (
-          <option key={option.id} value={option.value}>
-            {option.label}
-          </option>
-        ))}
+        {options.length > 0 ? (
+          options.map((option, idx) => (
+            <option key={idx} value={option.value}>
+              {option.label}
+            </option>
+          ))
+        ) : (
+          <option value="">No options available</option>
+        )}
       </select>
       <button onClick={() => onRemove(index)} className="ravi-remove-btn">
         -

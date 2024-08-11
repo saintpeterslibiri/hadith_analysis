@@ -1,3 +1,187 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.main {
+  width: 100vw;
+  min-height: 120vh;
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  padding: 20px 24px 160px 24px;
+  pointer-events: none;
+}
+
+.main:before {
+    background: radial-gradient(circle, rgba(2, 0, 36, 0) 0, #fafafa 100%);
+    position: absolute;
+    content: "";
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    top: 0;
+  }
+  .button-margin{
+    margin-top: 10px ;
+  }
+  .main:after {
+    content: "";
+    background-image: url("/public/assets/images/grid.svg");
+    z-index: 1;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    opacity: 0.4;
+    filter: invert(1);
+  }
+  
+  .arabic-keyboard {
+    height: auto;
+    margin: 3px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .arabic-keyboard button:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .arabic-keyboard .space {
+    width: 100%;
+  }
+  
+  .arabic-keyboard .delete {
+    background-color: #ff6b6b;
+    color: white;
+    width: 100%;
+  }
+  /* index.css dosyasına bu stilleri ekleyin */
+  
+  .dashboard {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+  }
+
+  .button-row {
+    margin-bottom: 20px;
+  }
+  
+  .button-row button {
+    margin-right: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .chart-row {
+    margin-top: 20px;
+  }
+  .slider-container {
+    position: relative;
+    padding-top: 20px;
+  }
+  
+  .slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: #e0e0e0;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+  
+  .slider:hover {
+    opacity: 1;
+  }
+  
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #5a67d8;
+    cursor: pointer;
+    border-radius: 50%;
+  }
+  
+  .slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #5a67d8;
+    cursor: pointer;
+    border-radius: 50%;
+  }
+  
+  .slider-value {
+    position: absolute;
+    top: -5px;
+    background: #5a67d8;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-size: 14px;
+    transform: translateX(-50%);
+  }
+  
+  .gradient {
+    height: fit-content;
+    z-index: 3;
+    width: 100%;
+    max-width: 640px;
+    background-image: radial-gradient(
+        at 27% 37%,
+        hsla(215, 98%, 61%, 1) 0px,
+        transparent 0%
+      ),
+      radial-gradient(at 97% 21%, hsla(125, 98%, 72%, 1) 0px, transparent 50%),
+      radial-gradient(at 52% 99%, hsla(354, 98%, 61%, 1) 0px, transparent 50%),
+      radial-gradient(at 10% 29%, hsla(256, 96%, 67%, 1) 0px, transparent 50%),
+      radial-gradient(at 97% 96%, hsla(38, 60%, 74%, 1) 0px, transparent 50%),
+      radial-gradient(at 33% 50%, hsla(222, 67%, 73%, 1) 0px, transparent 50%),
+      radial-gradient(at 79% 53%, hsla(343, 68%, 79%, 1) 0px, transparent 50%);
+    position: absolute;
+    content: "";
+    width: 100%;
+    height: 100%;
+    filter: blur(100px) saturate(150%);
+    top: 80px;
+    opacity: 0.15;
+  }
+  
+  /* Responsive Styles */
+  @media screen and (max-width: 1024px) {
+    .chart-container,
+    #reliability-chart,
+    #places-chart {
+      width: 100%;
+      height: auto;
+    }
+  }
+  
+  @media screen and (max-width: 640px) {
+    .main {
+      padding: 0;
+    }
+    
+    .chart-row {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+  
+ 
+    
 /* General style */
 body {
     font-family: Arial, sans-serif;
@@ -64,7 +248,6 @@ body {
 .ravi-input-container {
     position: relative;
     flex-grow: 2;
-    margin-right: 10px;
     width: 100%;
 }
 
@@ -246,3 +429,260 @@ body {
         margin-right: 0;
     }
 }
+
+.arabic-keyboard {
+  height: auto;
+  margin: 3px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+}
+
+.arabic-keyboard button:hover {
+  background-color: #e0e0e0;
+}
+
+.arabic-keyboard .space {
+  width: 100%;
+}
+
+.arabic-keyboard .delete {
+  background-color: #ff6b6b;
+  color: white;
+  width: 100%;
+}
+/* Add these new styles at the end of your existing CSS file */
+
+/* Enhanced button styles */
+button {
+    transition: all 0.3s ease;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Pagination button styles */
+.pagination-button {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    margin: 0 4px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.pagination-button:hover {
+    background-color: #e0e0e0;
+}
+
+.pagination-button.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+/* List styles */
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    padding: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+li:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhance existing button styles */
+.add-filter-btn,
+.apply-filters-btn,
+.ravi-remove-btn {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.add-filter-btn:hover,
+.apply-filters-btn:hover,
+.ravi-remove-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Arabic keyboard button enhancements */
+.arabic-keyboard button {
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.arabic-keyboard button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhance input styles */
+input[type="text"],
+input[type="number"],
+select {
+    transition: all 0.3s ease;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Style for the "Go to page" input and button */
+#goto-page {
+    width: 60px;
+    text-align: center;
+}
+
+.go-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.go-button:hover {
+    background-color: #0056b3;
+}
+
+
+/* Tailwind Styles */
+.app {
+    @apply relative z-10 flex justify-center items-center flex-col max-w-7xl mx-auto sm:px-16 px-6;
+  }
+  
+  .black_btn {
+    @apply rounded-full border border-black bg-black py-1.5 px-5 text-white transition-all hover:bg-white hover:text-black text-center text-sm font-inter flex items-center justify-center;
+  }
+  
+  .outline_btn {
+    @apply rounded-full border border-black bg-transparent py-1.5 px-5 text-black transition-all hover:bg-black hover:text-white text-center text-sm font-inter flex items-center justify-center;
+  }
+  
+  .head_text {
+    @apply mt-5 text-5xl font-extrabold leading-[1.15] text-black sm:text-6xl;
+  }
+  
+  .orange_gradient {
+    @apply bg-gradient-to-r from-amber-500 via-orange-600 to-yellow-500 bg-clip-text text-transparent;
+  }
+  
+  .green_gradient {
+    @apply bg-gradient-to-r from-green-400 to-green-500 bg-clip-text text-transparent;
+  }
+  
+  .blue_gradient {
+    @apply bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent;
+  }
+  .bg-dark-blue {
+    background-color: #1e3a8a; /* Koyu mavi rengini buraya tanımlayın */
+  }
+  .desc {
+    @apply mt-5 text-lg text-gray-600 sm:text-xl max-w-2xl;
+  }
+  
+  .search_input {
+    @apply block w-full rounded-md border border-gray-200 bg-white py-2.5 font-satoshi pl-5 pr-12 text-sm shadow-lg font-medium focus:border-black focus:outline-none focus:ring-0;
+  }
+  
+  .copy_btn {
+    @apply w-7 h-7 rounded-full bg-white/10 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur flex justify-center items-center cursor-pointer;
+  }
+  
+  .glassmorphism {
+    @apply rounded-xl border border-gray-200 bg-white/20 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur p-5;
+  }
+  
+  .prompt_layout {
+    @apply space-y-6 py-8 sm:columns-2 sm:gap-6 xl:columns-3;
+  }
+  
+  /* Feed Component */
+  .feed {
+    @apply mt-16 mx-auto w-full max-w-xl flex justify-center items-center flex-col gap-2;
+  }
+  
+  /* Form Component */
+  .form_textarea {
+    @apply w-full flex rounded-lg h-[200px] mt-2 p-3 text-sm text-gray-500 outline-0;
+  }
+  
+  .form_input {
+    @apply w-full flex rounded-lg mt-2 p-3 text-sm text-gray-500 outline-0;
+  }
+  
+  /* Nav Component */
+  .logo_text {
+    @apply max-sm:hidden font-satoshi font-semibold text-lg text-black tracking-wide;
+  }
+  
+  .dropdown {
+    @apply absolute right-0 top-full mt-3 w-full p-5 rounded-lg bg-white min-w-[210px] flex flex-col gap-2 justify-end items-end;
+  }
+  
+  .dropdown_link {
+    @apply text-sm font-inter text-gray-700 hover:text-gray-500 font-medium;
+  }
+  
+  /* PromptCard Component */
+  .prompt_card {
+    @apply flex-1 break-inside-avoid rounded-lg border border-gray-300 bg-white/20 bg-clip-padding p-6 pb-4 backdrop-blur-lg backdrop-filter md:w-[360px] w-full h-fit;
+  }
+  
+  .flex-center {
+    @apply flex justify-center items-center;
+  }
+  
+  .flex-start {
+    @apply flex justify-start items-start;
+  }
+  
+  .flex-end {
+    @apply flex justify-end items-center;
+  }
+  
+  .flex-between {
+    @apply flex justify-between items-center;
+  }
+  
+  

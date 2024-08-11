@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import RaviStatFilter from '../components/common/Filters/RaviStatFilter';
+import RaviNameFilter from '../components/common/Filters/RaviNameFilter';
 
-const Filters = ({ bookList, musannifList, onFilterApply, onClearFilters  }) => {
+const Filters = ({ bookList, musannifList, RaviNameFilter, RaviStatusFilter, onFilterApply, onClearFilters  }) => {
     const [selectedBooks, setSelectedBooks] = useState([]);
     const [selectedMusannifs, setSelectedMusannifs] = useState([]);
     const [bookSearch, setBookSearch] = useState('');
     const [musannifSearch, setMusannifSearch] = useState('');
     const [isBooksOpen, setIsBooksOpen] = useState(false);
+    const [isRaviNameOpen, setIsRaviNameOpen] = useState(false);
+    const [isRaviStatusOpen, setIsRaviStatusOpen] = useState(false);    
     const [isMusannifsOpen, setIsMusannifsOpen] = useState(false);
     const [chainLength, setChainLength] = useState();
+    const [raviNameFilters, setRaviNameFilters] = useState([{ name: '', rank: -1 }]);
+    const [raviStatusFilters, setRaviStatusFilters] = useState([{ type: '', value: '', rank: -1 }]);
 
     const handleBookToggle = (book) => {
         setSelectedBooks(prev =>
@@ -30,7 +36,7 @@ const Filters = ({ bookList, musannifList, onFilterApply, onClearFilters  }) => 
     );
 
     const handleFilter = () => {
-        onFilterApply({ books: selectedBooks, musannifs: selectedMusannifs, chainLength });
+        onFilterApply({ books: selectedBooks, musannifs: selectedMusannifs, chainLength, raviNameFilters, raviStatusFilters });
     };
 
     const handleChainLengthChange = (event) => {
@@ -42,6 +48,30 @@ const Filters = ({ bookList, musannifList, onFilterApply, onClearFilters  }) => 
         setSelectedMusannifs([]);
         setChainLength(0);
         onClearFilters(); // Ana bileşene bildir
+    };
+
+    const handleRaviNameFilterChange = (index, key, value) => {
+        const newFilters = [...raviNameFilters];
+        newFilters[index][key] = value;
+        setRaviNameFilters(newFilters);
+    };
+
+    const handleRaviNameFilterRemove = (index) => {
+        const newFilters = [...raviNameFilters];
+        newFilters.splice(index, 1);
+        setRaviNameFilters(newFilters);
+    };
+
+    const handleRaviStatusFilterChange = (index, key, value) => {
+        const newFilters = [...raviStatusFilters];
+        newFilters[index][key] = value;
+        setRaviStatusFilters(newFilters);
+    };
+
+    const handleRaviStatusFilterRemove = (index) => {
+        const newFilters = [...raviStatusFilters];
+        newFilters.splice(index, 1);
+        setRaviStatusFilters(newFilters);
     };
 
     useEffect(() => {
@@ -122,7 +152,50 @@ const Filters = ({ bookList, musannifList, onFilterApply, onClearFilters  }) => 
                     </>
                 )}
             </div>
-
+            <div className="mb-6">
+                <div 
+                    className="mb-3 flex justify-between items-center bg-gray-200 p-2 rounded cursor-pointer"
+                    onClick={() => setIsRaviNameOpen(!isRaviNameOpen)}
+                >
+                    <h3 className="text-lg font-semibold">Ravi Name</h3>
+                    <span>{isRaviNameOpen ? '▲' : '▼'}</span>
+                </div>
+                {isRaviNameOpen && (
+                    <>
+                        <div>
+                            {raviNameFilters.map((filter, index) => (
+                                <RaviNameFilter
+                                    key={index}
+                                    filter={filter}
+                                    index={index}
+                                    onChange={handleRaviNameFilterChange}
+                                    onRemove={handleRaviNameFilterRemove}
+                                />
+                            ))}
+                            <button
+                                onClick={() => setRaviNameFilters([...raviNameFilters, { name: '', rank: -1 }])}
+                                className="w-full hover:underline px-4 py-2 text-sm bg-blue-500 rounded-full text-white"
+                            >
+                                Add Ravi Name Filter
+                            </button>
+                        </div>
+                    </>
+                )}
+            </div>    
+            <div className="mb-6">
+                <div 
+                    className="flex justify-between items-center bg-gray-200 p-2 rounded cursor-pointer"
+                    onClick={() => setIsRaviNameOpen(!isRaviStatusOpen)}
+                >
+                    <h3 className="text-lg font-semibold">Ravi Status</h3>
+                    <span>{isRaviStatusOpen ? '▲' : '▼'}</span>
+                </div>
+                {isBooksOpen && (
+                    <>
+                        
+                    </>
+                )}
+            </div>    
             <div className="number-selector mb-6">
                 <h3 className="text-lg font-semibold mb-2">Select Chain Length</h3>
                 <div className="slider-container">

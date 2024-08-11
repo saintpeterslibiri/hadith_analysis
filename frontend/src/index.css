@@ -66,17 +66,18 @@ svg {
 
 
 .pie-chart-container {
-  margin: 20px;
+  margin: 20px auto; /* Ortalamak için auto */
   padding: 20px;
   width: 100%;
-  min-width: 700px;
   max-width: 1000px;
   height: auto;
   max-height: 800px;
   border: 1px solid #ccc;
   border-radius: 8px;
   background-color: #fff;
+  text-align: center; /* İçerikleri ortalamak için */
 }
+
 .map-chart-container {
   margin: 20px;
   padding: 20px;
@@ -706,3 +707,4 @@ svg {
 .flex-between {
   @apply flex justify-between items-center;
 }
+

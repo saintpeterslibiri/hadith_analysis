@@ -4,6 +4,9 @@ import ChainModal from './ChainModal';
 import Filters from './HadithFilters';
 import ArabicKeyboard from '../components/common/arabicLayout'
 import keyboard from '../components/common/keyboard.png'
+import RaviNameFilter from '../components/common/Filters/RaviNameFilter';
+import RaviStatFilter from '../components/common/Filters/RaviStatFilter';
+import '../analysis.css';
 
 const HadithsList = () => {
     const [hadiths, setHadiths] = useState([]);
@@ -30,36 +33,6 @@ const HadithsList = () => {
         fetchTotalHadiths();
     }, [currentPage, searchTerm, selectedMusannif, selectedBook, selectedChainLength]);
     
-    useEffect(() => {
-        fetchAllData();
-    }, [allHadiths]);
-
-    const fetchAllData = async () => {
-        try {
-            const response = await axios.get(`http://localhost:5031/api/hadiths/all-hadiths`, {
-                params: {
-                    page: currentPage,
-                    search: searchTerm,
-                    musannif: selectedMusannif,
-                    book: selectedBook,
-                    chainLength: selectedChainLength > 0 ? selectedChainLength : undefined,
-                },
-                paramsSerializer: params => {
-                    return Object.keys(params)
-                        .filter(key => params[key] !== undefined)
-                        .map(key => Array.isArray(params[key])
-                            ? params[key].map(val => `${key}=${val}`).join('&')
-                            : `${key}=${params[key]}`)
-                        .join('&');
-                },
-            });
-            setAllHadiths(response.data);
-            console.log(totalPages)
-        } catch (error) {   
-            console.error('Error fetching hadiths:', error);
-        }
-    };
-
 const fetchData = async () => {
     try {
         const response = await axios.get(`http://localhost:5031/api/hadiths`, {
@@ -284,6 +257,8 @@ const fetchTotalHadiths = async () => {
                     <Filters
                         bookList={bookList}
                         musannifList={musannifList}
+                        RaviNameFilter={RaviNameFilter}
+                        RaviStatusFilter={RaviStatFilter}
                         onFilterApply={handleFilterApply}
                         onClearFilters={handleClearFilters}
                     />
@@ -305,11 +280,7 @@ const fetchTotalHadiths = async () => {
                                 <img src={keyboard} alt="Keyboard Icon" className="ml-2" width="24" height="24" />
                             </button>         
                         </div>
-                        {showArabicKeyboard && (
-                            <div className="absolute z-10 mt-2 right-0 transform translate-x-1/7 translate-y-3/5">
-                                <ArabicKeyboard onKeyPress={handleKeyPress} />
-                            </div>
-                        )}
+
                     </div>
                     <ul className="space-y-5">
                         {hadiths.map((hadith) => (

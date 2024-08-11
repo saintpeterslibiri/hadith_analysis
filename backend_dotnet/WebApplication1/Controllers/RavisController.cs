@@ -401,6 +401,30 @@ public class RavisController : ControllerBase
         Console.WriteLine($"Total Ravis Count: {totalCount}");
 
         return Ok(totalCount);
+
+    }
+    [HttpGet("reliability-list")]
+    public async Task<IActionResult> GetReliabilityList()
+    {
+        var reliabilities = await _context.Ravis
+            .Where(r => !string.IsNullOrEmpty(r.reliability) && r.reliability != "-1" && r.reliability != "0")
+            .Select(r => r.reliability)
+            .ToListAsync();
+
+        var uniqueReliabilities = new HashSet<string>();
+
+        foreach (var reliability in reliabilities)
+        {
+            var splittedReliabilities = reliability.Split(new string[] { "," }, StringSplitOptions.None);
+            foreach (var sReliability in splittedReliabilities)
+            {
+                uniqueReliabilities.Add(sReliability.Trim());
+            }
+        }
+
+        var orderedUniqueReliabilities = uniqueReliabilities.OrderBy(r => r).ToList();
+
+        return Ok(orderedUniqueReliabilities);
     }
     [HttpGet("tribe-list")]
     public async Task<IActionResult> GetTribesList()
@@ -676,36 +700,34 @@ public class RavisController : ControllerBase
 
         return File(memory, "application/zip", "ravis.zip");
     }
-[HttpGet("narrator-name-list")]
-public async Task<IActionResult> GetNarratorName(string query = "")
-{
-    var narratorNames = await _context.Ravis
-        .Where(r => !string.IsNullOrEmpty(r.narrator_name))
-        .Select(r => r.narrator_name)
-        .ToListAsync();
-
-    var uniqueNarratorName = new HashSet<string>();
-
-    foreach (var narrator_name in narratorNames)
+    [HttpGet("narrator-name-list")]
+    public async Task<IActionResult> GetNarratorName(string query = "")
     {
-        var splittedNarrators = narrator_name.Split(new string[] { "-#-" }, StringSplitOptions.None);
-        foreach (var sHocalari in splittedNarrators)
+        var narratorNames = await _context.Ravis
+            .Where(r => !string.IsNullOrEmpty(r.narrator_name))
+            .Select(r => r.narrator_name)
+            .ToListAsync();
+
+        var uniqueNarratorName = new HashSet<string>();
+
+        foreach (var narrator_name in narratorNames)
         {
-            uniqueNarratorName.Add(sHocalari.Trim());
+            var splittedNarrators = narrator_name.Split(new string[] { "-#-" }, StringSplitOptions.None);
+            foreach (var sHocalari in splittedNarrators)
+            {
+                uniqueNarratorName.Add(sHocalari.Trim());
+            }
         }
+
+        if (!string.IsNullOrEmpty(query))
+        {
+            uniqueNarratorName = new HashSet<string>(
+                uniqueNarratorName.Where(n => n.StartsWith(query, StringComparison.OrdinalIgnoreCase))
+            );
+        }
+
+        var orderedNarratorNames = uniqueNarratorName.OrderBy(n => n).ToList();
+
+        return Ok(orderedNarratorNames);
     }
-
-    if (!string.IsNullOrEmpty(query))
-    {
-        uniqueNarratorName = new HashSet<string>(
-            uniqueNarratorName.Where(n => n.StartsWith(query, StringComparison.OrdinalIgnoreCase))
-        );
-    }
-
-    var orderedNarratorNames = uniqueNarratorName.OrderBy(n => n).ToList();
-
-    return Ok(orderedNarratorNames);
-}
-
-
 }
